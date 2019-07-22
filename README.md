@@ -44,14 +44,14 @@ go get -u github.com/BRUHItsABunny/gOkHttp
 
 There is a folder filled with examples [here](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/)
 
-* [Simple request](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/simple_request.go)
-* [Simple GET request](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/simple_get.go)
-* [Simple POST request](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/simple_post.go)
-* [Data POST request](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/data_post.go)
-* [Multipart POST request](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/multipart_post.go)
-* [Multipart file upload](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/multipart_file_post.go)
-* [File upload](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/file_post.go)
-* [SSL pinning](https://raw.githubusercontent.com/BRUHItsABunny/gOkHttp/master/_examples/ssl_pinning.go)
+* [Simple request](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/simple_request.go)
+* [Simple GET request](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/simple_get.go)
+* [Simple POST request](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/simple_post.go)
+* [Data POST request](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/data_post.go)
+* [Multipart POST request](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/multipart_post.go)
+* [Multipart file upload](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/multipart_file_post.go)
+* [File upload](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/file_post.go)
+* [SSL pinning](https://github.com/BRUHItsABunny/gOkHttp/tree/master/_examples/ssl_pinning.go)
 
 ## Contributions
 
