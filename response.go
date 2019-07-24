@@ -15,7 +15,10 @@ func (res *HttpResponse) Text() (string, error) {
 	if strings.Contains(res.Header.Get("Content-Type"), "plain/text") || strings.Contains(res.Header.Get("Content-Type"), "text/plain") {
 		body, err := ioutil.ReadAll(res.Body)
 		if checkError(err) {
-			return string(body), err
+			err = res.Body.Close()
+			if checkError(err) {
+				return string(body), err
+			}
 		}
 		return "", err
 	}
@@ -25,7 +28,10 @@ func (res *HttpResponse) Text() (string, error) {
 func (res *HttpResponse) Bytes() ([]byte, error) {
 	body, err := ioutil.ReadAll(res.Body)
 	if checkError(err) {
-		return body, err
+		err = res.Body.Close()
+		if checkError(err) {
+			return body, err
+		}
 	}
 	return nil, err
 }
@@ -34,7 +40,10 @@ func (res *HttpResponse) JSON() (*HttpJSONResponse, error) {
 	if strings.Contains(res.Header.Get("Content-Type"), "application/json") {
 		body, err := ioutil.ReadAll(res.Body)
 		if checkError(err) {
-			return &HttpJSONResponse{body}, err
+			err = res.Body.Close()
+			if checkError(err) {
+				return &HttpJSONResponse{body}, err
+			}
 		}
 		return nil, err
 	}
@@ -45,12 +54,14 @@ func (res *HttpResponse) XML() (*etree.Document, error) {
 	if strings.Contains(res.Header.Get("Content-Type"), "application/xml") {
 		body, err := ioutil.ReadAll(res.Body)
 		if checkError(err) {
-			doc := etree.NewDocument()
-			err = doc.ReadFromBytes(body)
+			err = res.Body.Close()
 			if checkError(err) {
-				return doc, err
+				doc := etree.NewDocument()
+				err = doc.ReadFromBytes(body)
+				if checkError(err) {
+					return doc, err
+				}
 			}
-			return nil, err
 		}
 		return nil, err
 	}
@@ -61,8 +72,11 @@ func (res *HttpResponse) HTML() (*soup.Root, error) {
 	if strings.Contains(res.Header.Get("Content-Type"), "plain/html") || strings.Contains(res.Header.Get("Content-Type"), "text/html") {
 		body, err := ioutil.ReadAll(res.Body)
 		if checkError(err) {
-			htmlSoup := soup.HTMLParse(string(body))
-			return &htmlSoup, err
+			err = res.Body.Close()
+			if checkError(err) {
+				htmlSoup := soup.HTMLParse(string(body))
+				return &htmlSoup, err
+			}
 		}
 		return nil, err
 	}
@@ -72,15 +86,18 @@ func (res *HttpResponse) HTML() (*soup.Root, error) {
 func (res *HttpResponse) Object(o interface{}) error {
 	body, err := ioutil.ReadAll(res.Body)
 	if checkError(err) {
-		switch true {
-		case strings.Contains(res.Header.Get("Content-Type"), "application/xml"):
-			err = xml.Unmarshal(body, o)
-			return err
-		case strings.Contains(res.Header.Get("Content-Type"), "application/json"):
-			err = json.Unmarshal(body, o)
-			return err
-		default:
-			return errors.New("Content-Type not supported: " + res.Header.Get("Content-Type"))
+		err = res.Body.Close()
+		if checkError(err) {
+			switch true {
+			case strings.Contains(res.Header.Get("Content-Type"), "application/xml"):
+				err = xml.Unmarshal(body, o)
+				return err
+			case strings.Contains(res.Header.Get("Content-Type"), "application/json"):
+				err = json.Unmarshal(body, o)
+				return err
+			default:
+				return errors.New("Content-Type not supported: " + res.Header.Get("Content-Type"))
+			}
 		}
 	}
 	return err
