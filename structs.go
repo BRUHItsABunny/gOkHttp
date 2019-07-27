@@ -1,7 +1,7 @@
 package gokhttp
 
 import (
-	"gokhttp/cookies"
+	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"net"
 	"net/http"
 	"time"

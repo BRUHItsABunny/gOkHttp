@@ -2,7 +2,7 @@ package gokhttp
 
 import (
 	"bytes"
-	"gokhttp/cookies"
+	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"golang.org/x/net/publicsuffix"
 	"io"
 	"mime/multipart"
