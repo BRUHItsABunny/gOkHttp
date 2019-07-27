@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gokhttp"
-	"gokhttp/cookies"
+	gokhttp "github.com/BRUHItsABunny/gOkHttp"
+	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"golang.org/x/net/publicsuffix"
 	"net/http"
 	"time"

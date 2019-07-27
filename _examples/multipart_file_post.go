@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gokhttp"
+	gokhttp "github.com/BRUHItsABunny/gOkHttp"
 	"io"
 	"os"
 )

@@ -2,7 +2,7 @@ package gokhttp
 
 import (
 	"bytes"
-	"gokhttp/cookies"
+	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"golang.org/x/net/publicsuffix"
 	"io"
 	"mime/multipart"
@@ -55,6 +55,9 @@ func GetHTTPClient(o *HttpClientOptions) HttpClient {
 		if o.RedirectPolicy != nil {
 			httpClient.Client.CheckRedirect = o.RedirectPolicy
 		}
+		if o.Context != nil {
+			httpClient.Context = o.Context
+		}
 	}
 	httpClient.Client.Jar = cookieJar
 	httpClient.RefererOptions = refOps
@@ -70,6 +73,9 @@ func (c *HttpClient) readyRequest(req *http.Request) *http.Request {
 	}
 	for k, v := range c.Headers {
 		req.Header.Add(k, v)
+	}
+	if c.Context != nil {
+		req = req.WithContext(*c.Context)
 	}
 	return req
 }

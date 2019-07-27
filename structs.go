@@ -1,7 +1,8 @@
 package gokhttp
 
 import (
-	"gokhttp/cookies"
+	"context"
+	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"net"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ type HttpClient struct {
 	Client         *http.Client
 	RefererOptions RefererOptions
 	Headers        map[string]string
+	Context        *context.Context
 }
 
 type RefererOptions struct {
@@ -27,6 +29,7 @@ type HttpClientOptions struct {
 	RefererOptions    *RefererOptions
 	RedirectPolicy    func(req *http.Request, via []*http.Request) error
 	Headers           map[string]string
+	Context           *context.Context
 }
 
 type HttpResponse struct {
