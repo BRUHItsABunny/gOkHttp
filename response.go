@@ -42,7 +42,7 @@ func (res *HttpResponse) Bytes() ([]byte, error) {
 
 	if res.ContentLength == -1 {
 		buffer = bytes.NewBuffer(body)
-		_, err = io.Copy(buffer, res.Body)
+		_, err = buffer.ReadFrom(res.Body)
 		body = buffer.Bytes()
 	} else {
 		body = make([]byte, res.ContentLength)
@@ -55,7 +55,6 @@ func (res *HttpResponse) Bytes() ([]byte, error) {
 	} else {
 		_ = res.Body.Close()
 	}
-
 	return body, err
 }
 
