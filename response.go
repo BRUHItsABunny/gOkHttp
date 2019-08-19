@@ -48,6 +48,7 @@ func (res *HttpResponse) Bytes() ([]byte, error) {
 		body = make([]byte, res.ContentLength)
 		buffer = bytes.NewBuffer(body)
 		_, err = io.Copy(buffer, res.Body)
+		body = buffer.Bytes()
 	}
 
 	if err == nil {
