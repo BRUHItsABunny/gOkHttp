@@ -22,7 +22,7 @@ func checkError(err error) bool {
 func GetHTTPClient(o *HttpClientOptions) HttpClient {
 	httpClient := HttpClient{
 		Client: &http.Client{
-			Timeout: 15 * time.Second,
+			Timeout: 20 * time.Second,
 			Transport: &http.Transport{
 				TLSHandshakeTimeout: 15 * time.Second,
 				DisableCompression:  false,
