@@ -1,6 +1,7 @@
 package gokhttp
 
 import (
+	"context"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/tls"
@@ -34,7 +35,7 @@ func (p *SSLPinner) AddPin(hostname string, skipCA bool, pins ...string) error {
 }
 
 func MakeDialer(pinner SSLPinner) Dialer {
-	return func(network, addr string) (net.Conn, error) {
+	return func(ctx context.Context, network, addr string) (net.Conn, error) {
 		hostname := strings.Split(addr, ":")[0]
 		pins, err := pinner.GetPinsForHost(hostname)
 		if err != nil {

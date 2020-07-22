@@ -11,7 +11,7 @@ import (
 
 func main() {
 	gOkHttpPinner := gokhttp.GetSSLPinner()
-	err := gOkHttpPinner.AddPin("google.com", false, "sha256\\f8NnEFZxQ4ExFOhSN7EiFWtiudZQVD2oY60uauV/n78=") // using sha256\\f8NnEFZxQ4ExFOhSN7EiFWtiudZQVD2oY60uauV/n78= will yield actual HTML code
+	err := gOkHttpPinner.AddPin("google.com", false, "sha256\\YZPgTZ+woNCCCIW3LH2CxQeLzB/1m42QcCTBSdgayjs=") // using sha256\\YZPgTZ+woNCCCIW3LH2CxQeLzB/1m42QcCTBSdgayjs= will yield actual HTML code
 	gOkHttpOptions := gokhttp.HttpClientOptions{
 		JarOptions: &cookies.JarOptions{PublicSuffixList: publicsuffix.List, NoPersist: true},
 		Transport: &http.Transport{
