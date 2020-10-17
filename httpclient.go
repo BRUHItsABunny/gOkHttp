@@ -20,11 +20,14 @@ func checkError(err error) bool {
 }
 
 func GetHTTPClient(o *HttpClientOptions) HttpClient {
+	if o == nil {
+		o = DefaultGOKHTTPOptions
+	}
 	httpClient := HttpClient{
 		Client: &http.Client{
-			Timeout: 20 * time.Second,
+			Timeout: *o.Timeout,
 			Transport: &http.Transport{
-				TLSHandshakeTimeout: 15 * time.Second,
+				TLSHandshakeTimeout: *o.Timeout,
 				DisableCompression:  false,
 				DisableKeepAlives:   false,
 			},
@@ -33,32 +36,30 @@ func GetHTTPClient(o *HttpClientOptions) HttpClient {
 	}
 	cookieJar, _ := cookies.New(&cookies.JarOptions{PublicSuffixList: publicsuffix.List, NoPersist: true})
 	refOps := RefererOptions{Update: false, Use: false}
-	if o != nil {
-		if o.Timeout != nil {
-			httpClient.Client.Timeout = *o.Timeout
+	if o.Timeout != nil {
+		httpClient.Client.Timeout = *o.Timeout
+	}
+	if o.Transport != nil {
+		httpClient.Client.Transport = o.Transport
+		if o.SSLPinningOptions != nil {
+			o.Transport.DialTLSContext = MakeDialer(*o.SSLPinningOptions)
 		}
-		if o.Transport != nil {
-			httpClient.Client.Transport = o.Transport
-			if o.SSLPinningOptions != nil {
-				o.Transport.DialTLSContext = MakeDialer(*o.SSLPinningOptions)
-			}
-		}
-		if o.JarOptions != nil {
-			cookieJar, _ = cookies.New(o.JarOptions)
-		}
-		if o.RefererOptions != nil {
-			refOps = *o.RefererOptions
-		}
-		if o.Headers != nil {
-			httpClient.Headers = o.Headers
-		}
-		if o.RedirectPolicy != nil {
-			httpClient.Client.CheckRedirect = o.RedirectPolicy
-		}
-		if o.Context != nil {
-			httpClient.Context = o.Context
-			httpClient.CancelF = o.CancelF
-		}
+	}
+	if o.JarOptions != nil {
+		cookieJar, _ = cookies.New(o.JarOptions)
+	}
+	if o.RefererOptions != nil {
+		refOps = *o.RefererOptions
+	}
+	if o.Headers != nil {
+		httpClient.Headers = o.Headers
+	}
+	if o.RedirectPolicy != nil {
+		httpClient.Client.CheckRedirect = o.RedirectPolicy
+	}
+	if o.Context != nil {
+		httpClient.Context = o.Context
+		httpClient.CancelF = o.CancelF
 	}
 	httpClient.Client.Jar = cookieJar
 	httpClient.RefererOptions = refOps
@@ -67,11 +68,14 @@ func GetHTTPClient(o *HttpClientOptions) HttpClient {
 }
 
 func GetHTTPDownloadClient(o *HttpClientOptions) HttpClient {
+	if o == nil {
+		o = DefaultGOKHTTPOptions
+	}
 	httpClient := HttpClient{
 		Client: &http.Client{
-			Timeout: time.Duration(0),
+			Timeout: time.Duration(0), // No time-out
 			Transport: &http.Transport{
-				TLSHandshakeTimeout: 15 * time.Second,
+				TLSHandshakeTimeout: *o.Timeout,
 				DisableCompression:  false,
 				DisableKeepAlives:   false,
 			},
@@ -80,36 +84,42 @@ func GetHTTPDownloadClient(o *HttpClientOptions) HttpClient {
 	}
 	cookieJar, _ := cookies.New(&cookies.JarOptions{PublicSuffixList: publicsuffix.List, NoPersist: true})
 	refOps := RefererOptions{Update: false, Use: false}
-	if o != nil {
-		if o.Timeout != nil {
-			httpClient.Client.Timeout = time.Duration(0)
+	if o.Timeout != nil {
+		httpClient.Client.Timeout = time.Duration(0)
+	}
+	if o.Transport != nil {
+		httpClient.Client.Transport = o.Transport
+		if o.SSLPinningOptions != nil {
+			o.Transport.DialTLSContext = MakeDialer(*o.SSLPinningOptions)
 		}
-		if o.Transport != nil {
-			httpClient.Client.Transport = o.Transport
-			if o.SSLPinningOptions != nil {
-				o.Transport.DialTLSContext = MakeDialer(*o.SSLPinningOptions)
-			}
-		}
-		if o.JarOptions != nil {
-			cookieJar, _ = cookies.New(o.JarOptions)
-		}
-		if o.RefererOptions != nil {
-			refOps = *o.RefererOptions
-		}
-		if o.Headers != nil {
-			httpClient.Headers = o.Headers
-		}
-		if o.RedirectPolicy != nil {
-			httpClient.Client.CheckRedirect = o.RedirectPolicy
-		}
-		if o.Context != nil {
-			httpClient.Context = o.Context
-		}
+	}
+	if o.JarOptions != nil {
+		cookieJar, _ = cookies.New(o.JarOptions)
+	}
+	if o.RefererOptions != nil {
+		refOps = *o.RefererOptions
+	}
+	if o.Headers != nil {
+		httpClient.Headers = o.Headers
+	}
+	if o.RedirectPolicy != nil {
+		httpClient.Client.CheckRedirect = o.RedirectPolicy
+	}
+	if o.Context != nil {
+		httpClient.Context = o.Context
 	}
 	httpClient.Client.Jar = cookieJar
 	httpClient.RefererOptions = refOps
 	httpClient.ClientOptions = o
 	return httpClient
+}
+
+func (c *HttpClient) SetProxy(proxyURLStr string) error {
+	proxyUrl, err := url.Parse(proxyURLStr)
+	if err == nil {
+		c.Client.Transport.(*http.Transport).Proxy = http.ProxyURL(proxyUrl)
+	}
+	return err
 }
 
 func (c *HttpClient) readyRequest(req *http.Request) *http.Request {

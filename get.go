@@ -1,8 +1,11 @@
 package gokhttp
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
-func (c *HttpClient) MakeGETRequest(URL string, parameters, headers map[string]string) (*http.Request, error) {
+func (c *HttpClient) MakeGETRequest(URL string, parameters url.Values, headers map[string]string) (*http.Request, error) {
 	var (
 		req *http.Request
 		err error
@@ -16,7 +19,9 @@ func (c *HttpClient) MakeGETRequest(URL string, parameters, headers map[string]s
 	if checkError(err) {
 		query := req.URL.Query()
 		for k, v := range parameters {
-			query.Add(k, v)
+			for _, e := range v {
+				query.Add(k, e)
+			}
 		}
 		req.URL.RawQuery = query.Encode()
 		for k, v := range headers {

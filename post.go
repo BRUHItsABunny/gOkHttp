@@ -32,7 +32,7 @@ func (c *HttpClient) MakePOSTRequest(URL string, postFields, headers map[string]
 	return nil, err
 }
 
-func (c *HttpClient) MakePOSTRequestWithParameters(URL string, postFields, parameters, headers map[string]string) (*http.Request, error) {
+func (c *HttpClient) MakePOSTRequestWithParameters(URL string, parameters url.Values, postFields, headers map[string]string) (*http.Request, error) {
 	var (
 		req *http.Request
 		err error
@@ -50,7 +50,9 @@ func (c *HttpClient) MakePOSTRequestWithParameters(URL string, postFields, param
 	if checkError(err) {
 		query := req.URL.Query()
 		for k, v := range parameters {
-			query.Add(k, v)
+			for _, e := range v {
+				query.Add(k, e)
+			}
 		}
 		req.URL.RawQuery = query.Encode()
 		for k, v := range headers {
@@ -83,7 +85,7 @@ func (c *HttpClient) MakeMultiPartPOSTRequest(URL, contentType string, postBody 
 	return nil, err
 }
 
-func (c *HttpClient) MakeMultiPartPOSTRequestWithParameters(URL, contentType string, postBody io.Reader, parameters, headers map[string]string) (*http.Request, error) {
+func (c *HttpClient) MakeMultiPartPOSTRequestWithParameters(URL string, parameters url.Values, contentType string, postBody io.Reader, headers map[string]string) (*http.Request, error) {
 	var (
 		req *http.Request
 		err error
@@ -97,7 +99,9 @@ func (c *HttpClient) MakeMultiPartPOSTRequestWithParameters(URL, contentType str
 	if checkError(err) {
 		query := req.URL.Query()
 		for k, v := range parameters {
-			query.Add(k, v)
+			for _, e := range v {
+				query.Add(k, e)
+			}
 		}
 		req.URL.RawQuery = query.Encode()
 		for k, v := range headers {
@@ -109,7 +113,7 @@ func (c *HttpClient) MakeMultiPartPOSTRequestWithParameters(URL, contentType str
 	return nil, err
 }
 
-func (c *HttpClient) MakeRawPOSTRequest(URL string, postBody io.Reader, parameters, headers map[string]string) (*http.Request, error) {
+func (c *HttpClient) MakeRawPOSTRequest(URL string, parameters url.Values, postBody io.Reader, headers map[string]string) (*http.Request, error) {
 	/*
 		No content type -> post body will be seen as DATA
 		x-wwww-form content type -> post body will be seen as FIELDS
@@ -128,7 +132,9 @@ func (c *HttpClient) MakeRawPOSTRequest(URL string, postBody io.Reader, paramete
 	if checkError(err) {
 		query := req.URL.Query()
 		for k, v := range parameters {
-			query.Add(k, v)
+			for _, e := range v {
+				query.Add(k, e)
+			}
 		}
 		req.URL.RawQuery = query.Encode()
 		for k, v := range headers {

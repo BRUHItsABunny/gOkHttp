@@ -3,15 +3,19 @@ package gokhttp
 import (
 	"errors"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"sync"
 )
 
-func (c *HttpClient) MakeHEADRequest(URL string, parameters, headers map[string]string) (*http.Request, error) {
+func (c *HttpClient) MakeHEADRequest(URL string, parameters url.Values, headers map[string]string) (*http.Request, error) {
 	var (
 		req *http.Request
 		err error
@@ -25,7 +29,9 @@ func (c *HttpClient) MakeHEADRequest(URL string, parameters, headers map[string]
 	if checkError(err) {
 		query := req.URL.Query()
 		for k, v := range parameters {
-			query.Add(k, v)
+			for _, e := range v {
+				query.Add(k, e)
+			}
 		}
 		req.URL.RawQuery = query.Encode()
 		for k, v := range headers {
@@ -36,82 +42,145 @@ func (c *HttpClient) MakeHEADRequest(URL string, parameters, headers map[string]
 	return nil, err
 }
 
-func (c HttpClient) CheckResource(task *Task, parameters, headers map[string]string) *Task {
-	// Send HEAD request if task isn't a thread
-	if !task.IsThread {
-		req, err := c.MakeHEADRequest(task.URL, parameters, headers)
-		resp, err := c.Client.Do(req)
-		if err == nil {
-			// Check for Content-Length and Range support
-			fileSize := resp.ContentLength
-			supportsRanges := false
-			if resp.Header.Get("Accept-Ranges") == "bytes" {
-				supportsRanges = true
-			}
-			if resp.Header.Get("Ranges-Supported") == "bytes" {
-				supportsRanges = true
-			}
-			task.CanResume = supportsRanges
-			task.Expected = uint64(fileSize)
-			// If its threaded AND ranges are supported, proceed with threaded download
-			if task.Threads > 1 && task.CanResume {
-				// Check for ALL existing fragments
-				result := make([]Task, 0)
-				for thread := 0; thread < task.Threads; thread++ {
-					// Setup sub-task to track progress
-					progressChan := make(chan *TrackerMessage)
-					threadTask := Task{
-						Id:              task.Id,
-						Name:            task.Name + ".fragment." + strconv.Itoa(thread),
-						Total:           0,
-						Expected:        0,
-						CanResume:       task.CanResume,
-						Threads:         1,
-						IsThread:        true,
-						URL:             task.URL,
-						ProgressChannel: progressChan,
-					}
-					// Check what the start and end range is for this task
-					start := int(task.Expected) / task.Threads * thread
-					var stop int
-					if thread == task.Threads {
-						stop = int(task.Expected)
-					} else {
-						stop = int(task.Expected)/task.Threads*(thread+1) - 1
-					}
-					threadTask.Total = uint64(start)
-					threadTask.Expected = uint64(stop)
-					threadTask.FragSize = uint64(stop - start)
-					// Check if file exists and update task with existing progress accordingly
-					info, exists := fileExists(threadTask.Name + ".tmp")
-					if exists {
-						threadTask.Total += uint64(info.Size())
-					}
-					// Add to result
-					result = append(result, threadTask)
-				}
-				task.ThreadObjects = result
-			} else {
-				// Check if file exists, if it does check if the length is below the Content-Length
-				info, exists := fileExists(task.Name + ".tmp")
-				if exists && task.CanResume {
-					task.Total = uint64(info.Size())
-				}
-			}
+func (t *Task) ReadyTask(resp *http.Response) {
+	//var err error
+	// Check for Content-Length and Range support
+	supportsRanges := false
+	fileSize := resp.ContentLength
+	if resp.Request.Method == "HEAD" {
+		if resp.Header.Get("Accept-Ranges") == "bytes" {
+			supportsRanges = true
+		}
+		if resp.Header.Get("Ranges-Supported") == "bytes" {
+			supportsRanges = true
+		}
+	} else {
+		// GET?
+		contentRange := resp.Header.Get("Content-Range")
+		if contentRange != "" {
+			supportsRanges = true
+			fileSize, _ = strconv.ParseInt(strings.Split(contentRange, "/")[1], 10, 64)
 		}
 	}
+
+	t.CanResume = supportsRanges
+	// Fallback for not support ranges onto single threaded
+	if !supportsRanges {
+		t.Threads = 1
+	}
+	t.Expected = uint64(fileSize)
+	// If its threaded AND ranges are supported, proceed with threaded download
+	if t.Threads > 1 && t.CanResume {
+		// Check for ALL existing fragments
+		result := make([]Task, 0)
+		for thread := 0; thread < t.Threads; thread++ {
+			// Setup sub-task to track progress
+			progressChan := make(chan *TrackerMessage)
+			threadTask := Task{
+				Id:              t.Id,
+				Name:            t.Name + ".fragment." + strconv.Itoa(thread),
+				Total:           0,
+				Expected:        0,
+				CanResume:       t.CanResume,
+				Threads:         1,
+				IsThread:        true,
+				URL:             t.URL,
+				ProgressChannel: progressChan,
+			}
+			// Check what the start and end range is for this task
+			start := int(t.Expected) / t.Threads * thread
+			var stop int
+			if thread == t.Threads {
+				stop = int(t.Expected)
+			} else {
+				stop = int(t.Expected)/t.Threads*(thread+1) - 1
+			}
+			threadTask.Total = uint64(start)
+			threadTask.Expected = uint64(stop)
+			threadTask.FragSize = uint64(stop - start)
+			// Check if file exists and update task with existing progress accordingly
+			info, exists := fileExists(threadTask.Name + ".tmp")
+			if exists {
+				threadTask.Total += uint64(info.Size())
+			}
+			// Add to result
+			result = append(result, threadTask)
+		}
+		t.ThreadObjects = result
+	} else {
+		// Check if file exists, if it does check if the length is below the Content-Length
+		info, exists := fileExists(t.Name + ".tmp")
+		if exists && t.CanResume {
+			t.Total = uint64(info.Size())
+		}
+	}
+
+	fmt.Println(spew.Sdump(t))
+}
+
+func (c *HttpClient) CheckResource(task *Task, parameters url.Values, headers map[string]string) *Task {
+	var (
+		err  error
+		req  *http.Request
+		resp *http.Response
+	)
+	// Send HEAD request if task isn't a thread
+	if !task.IsThread {
+		fmt.Println("HEAD")
+		req, err = c.MakeHEADRequest(task.URL, parameters, headers)
+		if err == nil {
+			resp, err = c.Client.Do(req)
+			if err == nil {
+				//io.Copy(ioutil.Discard, resp.Body)
+				fmt.Println("Ready task 1")
+				respBytes, _ := httputil.DumpResponse(resp, false)
+				fmt.Println(string(respBytes))
+				resp.Body.Close()
+				task.ReadyTask(resp)
+			} else {
+				fmt.Println("GET instead, err  WTF:", err)
+				// Check first using a GET request, should not give error but it should either have or not have the right headers
+				req, err = c.MakeGETRequest(task.URL, parameters, headers)
+				fmt.Println("1")
+				if err == nil {
+					req.Header.Add("Range", "bytes=0-0")
+					fmt.Println("1")
+					resp, err = c.Client.Do(req)
+					fmt.Println("1")
+					fmt.Println(err, resp)
+					if err == nil {
+						respBytes, _ := httputil.DumpResponse(resp, false)
+						fmt.Println(string(respBytes))
+						// io.Copy(ioutil.Discard, resp.Body)
+						resp.Body.Close()
+						fmt.Println("Ready task 2")
+						task.ReadyTask(resp)
+					} else {
+						task.Threads = 1
+						fmt.Println("get err", err)
+					}
+				} else {
+					fmt.Println("err making req 2, ", err)
+				}
+			}
+		} else {
+			fmt.Println("err making req 1, ", err)
+		}
+	}
+	fmt.Println("end of function CheckResource")
 	return task
 }
 
-func (c *HttpClient) DownloadFile(task *Task, parameters, headers map[string]string) error {
+func (c *HttpClient) DownloadFile(task *Task, parameters url.Values, headers map[string]string) error {
 	var err error
-	// BOOTSTRAP
+	// BOOTSTRAP, maybe just store entire task object?
 	realName := task.Name
 	realId := task.Id
 	progressChan := task.ProgressChannel
 	// Make DownloadClient, it has no HTTP timeout
 	client := GetHTTPDownloadClient(c.ClientOptions)
 	task = c.CheckResource(task, parameters, headers)
+	fmt.Println("Checked resource existence")
 	taskTotal := task.Total
 	taskExpected := task.Expected
 	totalDelta := int64(taskExpected - taskTotal)
@@ -120,6 +189,7 @@ func (c *HttpClient) DownloadFile(task *Task, parameters, headers map[string]str
 	_, exists := fileExists(task.Name)
 	if !exists {
 		if task.Threads == 1 {
+			fmt.Println("Task 1 thread")
 			var resp *HttpResponse
 			// Make the Request
 			req := client.makeDownloadRequest(task, parameters, headers)
@@ -247,7 +317,7 @@ func Aggregate(task *Task, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
-func (c *HttpClient) StartThread(task *Task, started chan bool, parameters, headers map[string]string) error {
+func (c *HttpClient) StartThread(task *Task, started chan bool, parameters url.Values, headers map[string]string) error {
 	var err error
 	// BOOTSTRAP
 	realName := task.Name
@@ -306,7 +376,7 @@ func (c *HttpClient) StartThread(task *Task, started chan bool, parameters, head
 	return err
 }
 
-func (c *HttpClient) makeDownloadRequest(task *Task, parameters, headers map[string]string) *http.Request {
+func (c *HttpClient) makeDownloadRequest(task *Task, parameters url.Values, headers map[string]string) *http.Request {
 	var (
 		err error
 		req *http.Request
@@ -323,7 +393,9 @@ func (c *HttpClient) makeDownloadRequest(task *Task, parameters, headers map[str
 		// Ready from params and headers from arguments
 		query := req.URL.Query()
 		for k, v := range parameters {
-			query.Add(k, v)
+			for _, e := range v {
+				query.Add(k, e)
+			}
 		}
 		req.URL.RawQuery = query.Encode()
 		for k, v := range headers {
@@ -350,4 +422,5 @@ TODO:
 		2. [X] Download in a way that allows you to track things such as SPEED and PROGRESS PER THREAD (aggregate?)
 		3. [X] Merge all chunks, BUT should I keep the chunks in memory at all or write and merge from disk WASTING DISK SPACE during process?
 	3. [X] Confirm all features work.
+	4. [] Make fallback to single thread if multithread doesn't work
 */
