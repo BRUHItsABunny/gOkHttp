@@ -3,6 +3,7 @@ package gokhttp
 import (
 	"errors"
 	"os"
+	"strings"
 )
 
 func fileExists(fileName string) (os.FileInfo, bool) {
@@ -68,4 +69,63 @@ func DownloadStatusString(status int) string {
 		result = "Merging fragments"
 	}
 	return result
+}
+
+func ParseIndex(content []byte) {
+	// convert to string all at once or keep as bytes and convert if needed
+	lines := strings.Split(string(content), "\n")
+	for i, line := range lines {
+		if !strings.HasPrefix(line, "#") {
+			continue
+		}
+		elem := map[string]string{}
+		colonIndex := strings.Index(line, ":")
+		if colonIndex == -1 {
+			continue
+		}
+		elem["type"] = line[1:colonIndex]
+		attributes := strings.Split(line[colonIndex+1:], ",")
+		for _, attr := range attributes {
+			if !strings.Contains(attr, "=") {
+				continue
+			}
+			entry := strings.Split(attr, "=")
+			elem[entry[0]] = strings.ReplaceAll(entry[1], "\"", "")
+		}
+		if strings.ToUpper(elem["type"]) == "EXT-X-STREAM-INF" {
+			elem["URI"] = lines[i+1]
+		}
+	}
+}
+
+func ParsePlaylist(content []byte) {
+	// convert to string all at once or keep as bytes and convert if needed
+	lines := strings.Split(string(content), "\n")
+	for i, line := range lines {
+		if !strings.HasPrefix(line, "#") {
+			continue
+		}
+		elem := map[string]string{}
+		colonIndex := strings.Index(line, ":")
+		if colonIndex == -1 {
+			continue
+		}
+		if strings.Contains(line, ",") {
+
+		} else {
+
+		}
+		elem[line[1:colonIndex]] = line[colonIndex+1:]
+		attributes := strings.Split(line[colonIndex+1:], ",")
+		for _, attr := range attributes {
+			if !strings.Contains(attr, "=") {
+				continue
+			}
+			entry := strings.Split(attr, "=")
+			elem[entry[0]] = strings.ReplaceAll(entry[1], "\"", "")
+		}
+		if strings.ToUpper(elem["type"]) == "EXT-X-STREAM-INF" {
+			elem["URI"] = lines[i+1]
+		}
+	}
 }

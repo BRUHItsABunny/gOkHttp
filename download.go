@@ -3,10 +3,8 @@ package gokhttp
 import (
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"reflect"
@@ -114,8 +112,6 @@ func (t *Task) ReadyTask(resp *http.Response) {
 			t.Total = uint64(info.Size())
 		}
 	}
-
-	fmt.Println(spew.Sdump(t))
 }
 
 func (c *HttpClient) CheckResource(task *Task, parameters url.Values, headers map[string]string) *Task {
@@ -126,48 +122,28 @@ func (c *HttpClient) CheckResource(task *Task, parameters url.Values, headers ma
 	)
 	// Send HEAD request if task isn't a thread
 	if !task.IsThread {
-		fmt.Println("HEAD")
 		req, err = c.MakeHEADRequest(task.URL, parameters, headers)
 		if err == nil {
 			resp, err = c.Client.Do(req)
 			if err == nil {
-				//io.Copy(ioutil.Discard, resp.Body)
-				fmt.Println("Ready task 1")
-				respBytes, _ := httputil.DumpResponse(resp, false)
-				fmt.Println(string(respBytes))
-				resp.Body.Close()
+				// check status code too
 				task.ReadyTask(resp)
 			} else {
-				fmt.Println("GET instead, err  WTF:", err)
 				// Check first using a GET request, should not give error but it should either have or not have the right headers
 				req, err = c.MakeGETRequest(task.URL, parameters, headers)
-				fmt.Println("1")
 				if err == nil {
 					req.Header.Add("Range", "bytes=0-0")
-					fmt.Println("1")
 					resp, err = c.Client.Do(req)
-					fmt.Println("1")
-					fmt.Println(err, resp)
 					if err == nil {
-						respBytes, _ := httputil.DumpResponse(resp, false)
-						fmt.Println(string(respBytes))
-						// io.Copy(ioutil.Discard, resp.Body)
-						resp.Body.Close()
-						fmt.Println("Ready task 2")
+						// if PARTIAL CONTENT, else also single thread fallback
 						task.ReadyTask(resp)
 					} else {
 						task.Threads = 1
-						fmt.Println("get err", err)
 					}
-				} else {
-					fmt.Println("err making req 2, ", err)
 				}
 			}
-		} else {
-			fmt.Println("err making req 1, ", err)
 		}
 	}
-	fmt.Println("end of function CheckResource")
 	return task
 }
 
@@ -180,7 +156,6 @@ func (c *HttpClient) DownloadFile(task *Task, parameters url.Values, headers map
 	// Make DownloadClient, it has no HTTP timeout
 	client := GetHTTPDownloadClient(c.ClientOptions)
 	task = c.CheckResource(task, parameters, headers)
-	fmt.Println("Checked resource existence")
 	taskTotal := task.Total
 	taskExpected := task.Expected
 	totalDelta := int64(taskExpected - taskTotal)
@@ -189,7 +164,6 @@ func (c *HttpClient) DownloadFile(task *Task, parameters url.Values, headers map
 	_, exists := fileExists(task.Name)
 	if !exists {
 		if task.Threads == 1 {
-			fmt.Println("Task 1 thread")
 			var resp *HttpResponse
 			// Make the Request
 			req := client.makeDownloadRequest(task, parameters, headers)

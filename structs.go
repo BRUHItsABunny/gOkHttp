@@ -113,3 +113,38 @@ type Download struct {
 	// Threads
 	Fragments map[string]Download
 }
+
+type M3U8Index struct {
+	PlayLists []M3U8PlayList
+	RawValues map[string]string
+}
+
+type M3U8PlayList struct {
+	URL         string
+	Bandwidth   int
+	ResolutionX int
+	ResolutionY int
+	Codecs      []string
+	Framerate   int
+	RawValues   map[string]string
+}
+
+type M3U8FileList struct {
+	Files     []M3U8File
+	RawValues map[string]string
+}
+
+type M3U8File struct {
+	Duration float64
+	Location string
+}
+
+type Pill int
+
+const (
+	Placebo Pill = iota
+	Aspirin
+	Ibuprofen
+	Paracetamol
+	Acetaminophen = Paracetamol
+)
