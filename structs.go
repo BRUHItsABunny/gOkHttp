@@ -5,6 +5,7 @@ import (
 	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -139,12 +140,21 @@ type M3U8File struct {
 	Location string
 }
 
-type Pill int
-
-const (
-	Placebo Pill = iota
-	Aspirin
-	Ibuprofen
-	Paracetamol
-	Acetaminophen = Paracetamol
-)
+type DownloadReporter interface {
+	OnDone(message *TrackerMessage) error
+	OnStart(message *TrackerMessage) error
+	OnProgress(message *TrackerMessage) error
+	OnError(message *TrackerMessage) error
+	OnMerging(message *TrackerMessage) error
+	OnTick() error
+	Processor() error
+}
+type DefaultDownloadReporter struct {
+	Ticker     *time.Ticker
+	Chan       chan *TrackerMessage
+	InProgress map[int]Download
+	Done       map[int]Download
+	ShouldStop bool
+	WaitTime   int
+	WaitGroup  *sync.WaitGroup
+}

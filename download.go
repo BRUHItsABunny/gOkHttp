@@ -396,5 +396,5 @@ TODO:
 		2. [X] Download in a way that allows you to track things such as SPEED and PROGRESS PER THREAD (aggregate?)
 		3. [X] Merge all chunks, BUT should I keep the chunks in memory at all or write and merge from disk WASTING DISK SPACE during process?
 	3. [X] Confirm all features work.
-	4. [] Make fallback to single thread if multithread doesn't work
+	4. [X] Make fallback to single thread if multithread doesn't work
 */
