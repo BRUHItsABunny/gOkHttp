@@ -25,11 +25,9 @@ func GetHTTPClient(o *HttpClientOptions) HttpClient {
 	}
 	httpClient := HttpClient{
 		Client: &http.Client{
-			Timeout: *o.Timeout,
 			Transport: &http.Transport{
-				TLSHandshakeTimeout: *o.Timeout,
-				DisableCompression:  false,
-				DisableKeepAlives:   false,
+				DisableCompression: false,
+				DisableKeepAlives:  false,
 			},
 		},
 		Headers: map[string]string{},
@@ -38,6 +36,7 @@ func GetHTTPClient(o *HttpClientOptions) HttpClient {
 	refOps := RefererOptions{Update: false, Use: false}
 	if o.Timeout != nil {
 		httpClient.Client.Timeout = *o.Timeout
+		httpClient.Client.Transport.(*http.Transport).TLSHandshakeTimeout = *o.Timeout
 	}
 	if o.Transport != nil {
 		httpClient.Client.Transport = o.Transport

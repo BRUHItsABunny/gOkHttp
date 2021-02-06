@@ -56,3 +56,10 @@ There is a folder filled with examples [here](https://github.com/BRUHItsABunny/g
 ## Contributions
 
 Feel free to fork this repository and open up pull requests.
+
+## Todo
+
+* Built in HTTP3 support (as a switch)
+* Built in HLS downloader
+* Easier access to cookies
+* Better Unmarshalling, support for custom unmarshallers
