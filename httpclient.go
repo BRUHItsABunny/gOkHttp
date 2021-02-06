@@ -60,7 +60,9 @@ func GetHTTPClient(o *HttpClientOptions) HttpClient {
 		httpClient.Context = o.Context
 		httpClient.CancelF = o.CancelF
 	}
-	httpClient.Client.Jar = cookieJar
+	if cookieJar != nil {
+		httpClient.Client.Jar = cookieJar
+	}
 	httpClient.RefererOptions = refOps
 	httpClient.ClientOptions = o
 	return httpClient
