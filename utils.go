@@ -15,7 +15,10 @@ func fileExists(fileName string) (os.FileInfo, bool) {
 	if os.IsNotExist(err) {
 		return info, false
 	}
-	return info, !info.IsDir()
+	if err == nil {
+		return info, !info.IsDir()
+	}
+	return nil, false
 }
 
 func fileCreate(fileName string) (*os.File, error) {
