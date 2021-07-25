@@ -162,25 +162,20 @@ type DefaultDownloadReporter struct {
 type HeaderFiller interface {
 	Fill(*http.Request) *http.Request
 	GetHeaders() map[string]string
-	SetHeaders() map[string]string
+	SetHeaders(map[string]string)
 }
 
 type DefaultHeadersFiller struct {
 	Headers map[string]string
-	sync.RWMutex
 }
 
 func (filler *DefaultHeadersFiller) GetHeaders() map[string]string {
-	filler.RLock()
 	headers := filler.Headers
-	filler.RUnlock()
 	return headers
 }
 
 func (filler *DefaultHeadersFiller) SetHeaders(headers map[string]string) {
-	filler.Lock()
 	filler.Headers = headers
-	filler.Unlock()
 }
 
 func (filler *DefaultHeadersFiller) Fill(req *http.Request) *http.Request {
