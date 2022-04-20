@@ -69,6 +69,7 @@ type Task struct {
 	ThreadObjects   []Task
 	IsThread        bool
 	ProgressChannel chan *TrackerMessage
+	LockOSThread    bool
 }
 
 type TrackerMessage struct {

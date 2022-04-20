@@ -6,6 +6,7 @@ import (
 	"github.com/BRUHItsABunny/gOkHttp/cookies"
 	"golang.org/x/net/publicsuffix"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -24,7 +25,7 @@ func main() {
 	}
 	gOkHttpClient := gokhttp.GetHTTPClient(&gOkHttpOptions)
 	if err == nil {
-		req, err := gOkHttpClient.MakeGETRequest("https://google.com", map[string]string{}, map[string]string{})
+		req, err := gOkHttpClient.MakeGETRequest("https://google.com", url.Values{}, map[string]string{})
 		if err == nil {
 			response, err := gOkHttpClient.Do(req)
 			if err == nil {

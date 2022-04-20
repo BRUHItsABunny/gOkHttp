@@ -13,6 +13,7 @@ func GetDefaultDownloadReporter(channel chan *TrackerMessage, wg *sync.WaitGroup
 }
 
 func (dr *DefaultDownloadReporter) OnDone(message *TrackerMessage) error {
+	fmt.Println("ONDONE")
 	var (
 		err      error
 		download Download
@@ -121,6 +122,7 @@ func (dr *DefaultDownloadReporter) OnMerging(message *TrackerMessage) error {
 }
 
 func (dr *DefaultDownloadReporter) OnTick() error {
+	fmt.Println("ONTICK")
 	var (
 		err error
 	)

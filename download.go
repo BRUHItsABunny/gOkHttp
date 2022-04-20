@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -292,6 +293,10 @@ func Aggregate(task *Task, wg *sync.WaitGroup) {
 }
 
 func (c *HttpClient) StartThread(task *Task, started chan bool, parameters url.Values, headers map[string]string) error {
+	if task.LockOSThread {
+		runtime.LockOSThread()
+		defer runtime.UnlockOSThread()
+	}
 	var err error
 	// BOOTSTRAP
 	realName := task.Name
