@@ -31,10 +31,18 @@ func ResponseBytes(resp *http.Response) ([]byte, error) {
 	return respBytes, nil
 }
 
+func ResponseText(resp *http.Response) (string, error) {
+	respData, err := ResponseBytes(resp)
+	if err != nil {
+		return "", fmt.Errorf("responses.ResponseBytes: %w", err)
+	}
+	return string(respData), nil
+}
+
 func ResponseJSON(resp *http.Response, result interface{}) error {
 	respBytes, err := ResponseBytes(resp)
 	if err != nil {
-		return fmt.Errorf("ResponseBytes: %w", err)
+		return fmt.Errorf("responses.ResponseBytes: %w", err)
 	}
 
 	err = json.Unmarshal(respBytes, result)
@@ -44,10 +52,23 @@ func ResponseJSON(resp *http.Response, result interface{}) error {
 	return nil
 }
 
+func ResponseCustomMarshal(resp *http.Response, marshal func([]byte, any) error, result interface{}) error {
+	respBytes, err := ResponseBytes(resp)
+	if err != nil {
+		return fmt.Errorf("responses.ResponseBytes: %w", err)
+	}
+
+	err = marshal(respBytes, result)
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+	return nil
+}
+
 func ResponseHTML(resp *http.Response) (*goquery.Document, error) {
 	respBytes, err := ResponseBytes(resp)
 	if err != nil {
-		return nil, fmt.Errorf("ResponseBytes: %w", err)
+		return nil, fmt.Errorf("responses.ResponseBytes: %w", err)
 	}
 
 	doc, err := goquery.NewDocumentFromReader(bytes.NewBuffer(respBytes))
