@@ -7,15 +7,12 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/cornelk/hashmap v1.0.8
 	github.com/dustin/go-humanize v1.0.0
-	github.com/juju/go4 v0.0.0-20160222163258-40d72ab9641a
 	github.com/lucas-clemente/quic-go v0.31.1
 	github.com/stretchr/testify v1.8.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	go.uber.org/atomic v1.9.0
 	golang.org/x/net v0.4.0
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	gopkg.in/errgo.v1 v1.0.1
-	gopkg.in/retry.v1 v1.0.3
 )
 
 require (
@@ -25,6 +22,7 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/marten-seemann/qpack v0.3.0 // indirect
 	github.com/marten-seemann/qtls-go1-18 v0.1.3 // indirect
 	github.com/marten-seemann/qtls-go1-19 v0.1.1 // indirect
