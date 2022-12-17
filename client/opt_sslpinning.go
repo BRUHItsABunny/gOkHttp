@@ -31,7 +31,10 @@ func NewSSLPinningOption() *SSLPinningOption {
 }
 
 func (p *SSLPinningOption) Execute(client *http.Client) error {
-	client.Transport.(*http.Transport).DialTLSContext = p.dialContext
+	_, ok := client.Transport.(*http.Transport)
+	if ok {
+		client.Transport.(*http.Transport).DialTLSContext = p.dialContext
+	}
 	return nil
 }
 

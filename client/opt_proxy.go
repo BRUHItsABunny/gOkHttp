@@ -21,6 +21,11 @@ func (o *ProxyOption) Execute(client *http.Client) error {
 	if err != nil {
 		return fmt.Errorf("ProxyOption: url.Parse: %w", err)
 	}
-	client.Transport.(*http.Transport).Proxy = http.ProxyURL(puo)
+
+	_, ok := client.Transport.(*http.Transport)
+	if ok {
+		client.Transport.(*http.Transport).Proxy = http.ProxyURL(puo)
+	}
+
 	return nil
 }
