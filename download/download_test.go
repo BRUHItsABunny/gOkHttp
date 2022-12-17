@@ -13,7 +13,7 @@ import (
 
 func Test_Download(t *testing.T) {
 	clientOpts := []client.Option{
-		client.NewProxyOption("http://127.0.0.1:8888"),
+		// client.NewProxyOption("http://127.0.0.1:8888"),
 	}
 	hClient, err := client.NewHTTPClient(clientOpts...)
 	if err != nil {

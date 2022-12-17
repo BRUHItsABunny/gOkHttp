@@ -41,7 +41,7 @@ func (global *GlobalDownloadController) fmtReadable(result *strings.Builder) {
 	/*
 		Live CLI
 
-		Current IP: $IP and TIME: $DATETIME
+		Current IP: $IP and TIME: $DATETIME ($TOTAL_THREADS threads)
 		Download statistics: $TOTAL_DONE ($TOTAL_DONE_SIZE) out of $TOTAL ($TOTAL_SIZE)
 		[######################################] ($TOTAL_DONE_PERCENT% at $TOTAL_SPEED/s, ETA: $TOTAL_TIME_LEFT)
 
@@ -51,7 +51,7 @@ func (global *GlobalDownloadController) fmtReadable(result *strings.Builder) {
 		Chunk N: [######################################] ($TOTAL_DONE_PERCENT% at $TOTAL_SPEED/s, ETA: $TOTAL_TIME_LEFT)
 
 	*/
-	result.WriteString(fmt.Sprintf("Current IP: %s and last tick %s\n", global.CurrentIP.Load(), global.LastTick.Load().Format(time.RFC3339)))
+	result.WriteString(fmt.Sprintf("Current IP: %s and last tick %s (%d threads)\n", global.CurrentIP.Load(), global.LastTick.Load().Format(time.RFC3339), global.TotalThreads.Load()))
 	result.WriteString(fmt.Sprintf("Download statistics: %d (%s) out of %d (%s)\nOverall runtime: ", global.DownloadedFiles.Load(), humanize.Bytes(global.DownloadedBytes.Load()), global.TotalFiles.Load(), humanize.Bytes(global.TotalBytes.Load())))
 	progress(result, global.DeltaBytes.Load(), global.DownloadedBytes.Load(), global.TotalBytes.Load(), 40)
 	result.WriteString(fmt.Sprintf("Downloading %d files:\n", global.Tasks.Len()))
