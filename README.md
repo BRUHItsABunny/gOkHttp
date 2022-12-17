@@ -17,7 +17,7 @@ This library has been written with handling cookies (in-memory, on-disk, encrypt
 
 ##### Warning
 
-This library is probably not production ready yet, most of the core was coded in under 2 hours at 1 AM. Proceed with caution, this library was made to fit MY needs and therefore may be structured in a weird way or incomplete (feel free to fix it in a pull request).
+This library is a lot more stable than it was back when I first wrote it, though it's far from perfect so do not use it for mission critical stuff
 
 ## Installation
 
