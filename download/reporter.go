@@ -24,6 +24,14 @@ func (global *GlobalDownloadController) Tick(humanReadable bool) string {
 		return true
 	})
 	global.LastTick.Store(time.Now())
+	idleVal := global.DownloadedBytes.Load() + global.TotalBytes.Load()
+	if global.IdleValue.Load() == idleVal {
+		if global.IdleSince.Load().IsZero() {
+			global.IdleSince.Store(time.Now())
+		}
+	} else {
+		global.IdleValue.Store(idleVal)
+	}
 	return result.String()
 }
 

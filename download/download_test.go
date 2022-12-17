@@ -32,7 +32,7 @@ func Test_Download(t *testing.T) {
 	}
 
 	fileURL := "http://ipv4.download.thinkbroadband.com/200MB.zip"
-	global := NewGlobalDownloadController()
+	global := NewGlobalDownloadController(time.Second * time.Duration(3))
 	task, err := NewDownloadTaskController(hClient, global, "200MB.zip", "200MB.zip", fileURL, 3, 0, reqOpts...)
 	if err != nil {
 		t.Error(err)
@@ -46,7 +46,20 @@ func Test_Download(t *testing.T) {
 	}()
 	global.TotalFiles.Inc()
 	for {
-		if global.TotalFiles.Load() == global.DownloadedFiles.Load() {
+		if global.GraceFulStop.Load() || global.IdleTimeoutExceeded() {
+			global.Stop()
+			break
+		}
+		fmt.Println(global.Tick(true))
+		time.Sleep(time.Second)
+	}
+}
+
+func Test_DownloadIdle(t *testing.T) {
+	global := NewGlobalDownloadController(time.Minute)
+	for {
+		if global.GraceFulStop.Load() || global.IdleTimeoutExceeded() {
+			global.Stop()
 			break
 		}
 		fmt.Println(global.Tick(true))

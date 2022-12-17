@@ -15,6 +15,10 @@ type GlobalDownloadController struct {
 	// Synchronization
 	sync.WaitGroup
 	GraceFulStop *atomic.Bool `json:"-"`
+	// Idle stats
+	IdleSince   *atomic.Time   `json:"idleSince"`
+	IdleValue   *atomic.Uint64 `json:"-"`
+	IdleTimeout *atomic.Int64  `json:"-"`
 	// MetaData
 	LastTick     *atomic.Time                                  `json:"lastTick"`
 	CurrentIP    *atomic.String                                `json:"currentIP"`
@@ -30,10 +34,13 @@ type GlobalDownloadController struct {
 	DeltaBytes *atomic.Uint64 `json:"deltaBytes"`
 }
 
-func NewGlobalDownloadController() *GlobalDownloadController {
+func NewGlobalDownloadController(idleTimeout time.Duration) *GlobalDownloadController {
 	return &GlobalDownloadController{
 		WaitGroup:       sync.WaitGroup{},
 		GraceFulStop:    atomic.NewBool(false),
+		IdleValue:       atomic.NewUint64(0),
+		IdleSince:       atomic.NewTime(time.Time{}),
+		IdleTimeout:     atomic.NewInt64(int64(idleTimeout)),
 		LastTick:        atomic.NewTime(time.Now()),
 		CurrentIP:       atomic.NewString(""),
 		TotalThreads:    atomic.NewUint64(0),
@@ -68,12 +75,37 @@ func GetCurrentIPAddress(hClient *http.Client) (ip string) {
 	return
 }
 
+func (global *GlobalDownloadController) Stop() {
+	global.GraceFulStop.Store(true)
+	global.Wait()
+}
+
+func (global *GlobalDownloadController) IdleTimeoutExceeded() bool {
+	idleSince := global.IdleSince.Load()
+	idleTimeout := global.IdleTimeout.Load()
+	if !idleSince.IsZero() {
+		return time.Now().Sub(idleSince) >= time.Duration(idleTimeout)
+	}
+	return false
+}
+
 func (global *GlobalDownloadController) PollIP(hClient *http.Client) {
+	go global.pollIP(hClient)
+}
+
+func (global *GlobalDownloadController) pollIP(hClient *http.Client) {
+	global.Add(1)
+	i := 0
 	for {
-		time.Sleep(time.Minute)
+		if i >= 59 {
+			i = 0
+			global.CurrentIP.Store(GetCurrentIPAddress(hClient))
+		}
+		time.Sleep(time.Second)
 		if global.GraceFulStop.Load() {
 			break
 		}
-		global.CurrentIP.Store(GetCurrentIPAddress(hClient))
+		i++
 	}
+	global.Done()
 }
