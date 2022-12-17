@@ -29,7 +29,7 @@ go get -u github.com/BRUHItsABunny/gOkHttp
 
 ## Usage
 
-There is a file filled with examples [here](https://github.com/BRUHItsABunny/gOkHttp/blob/master/lib_test.go) and the you ccan find the Go docs [here](https://pkg.go.dev/github.com/BRUHItsABunny/gOkHttp)
+There is a file filled with examples [here](https://github.com/BRUHItsABunny/gOkHttp/blob/master/lib_test.go), and you can find the Go docs [here](https://pkg.go.dev/github.com/BRUHItsABunny/gOkHttp)
 
 ## Contributions
 
