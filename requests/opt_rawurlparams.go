@@ -12,6 +12,7 @@ func NewRawURLParamOption(rawQuery string) *RawURLParamOption {
 	return &RawURLParamOption{RawQuery: rawQuery}
 }
 
-func (o *RawURLParamOption) Execute(req *http.Request) {
+func (o *RawURLParamOption) Execute(req *http.Request) error {
 	req.URL.RawQuery = o.RawQuery
+	return nil
 }
