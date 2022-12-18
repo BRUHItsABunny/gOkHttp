@@ -2,6 +2,11 @@ module github.com/BRUHItsABunny/gOkHttp
 
 go 1.18
 
+replace (
+	github.com/cornelk/hashmap v1.0.8 => github.com/BRUHItsABunny/hashmap v0.0.0-20221125164545-8b59f13d589a
+	go.uber.org/atomic v1.10.0 => github.com/BRUHItsABunny/atomic v0.0.0-20221125214309-9e798cd18888
+)
+
 require (
 	github.com/BRUHItsABunny/crypto-utils v0.0.5
 	github.com/PuerkitoBio/goquery v1.8.0
@@ -10,7 +15,7 @@ require (
 	github.com/lucas-clemente/quic-go v0.31.1
 	github.com/stretchr/testify v1.8.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	go.uber.org/atomic v1.9.0
+	go.uber.org/atomic v1.10.0
 	golang.org/x/net v0.4.0
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 )
