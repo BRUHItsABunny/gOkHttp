@@ -31,7 +31,7 @@ func downloadChunk(ctx context.Context, global *GlobalDownloadController, task *
 	req, err := requests.MakeGETRequest(ctx, task.FileURL.Load(), opts...)
 	if err != nil {
 		global.TotalThreads.Dec()
-		return fmt.Errorf("requests.MakeGETRequest: %w", err)
+		return fmt.Errorf("[%s---%d] requests.MakeGETRequest: %w", task.FileName.String(), chunk.ChunkID.Load(), err)
 	}
 
 	if task.ChunkCount.Load() > 1 {
@@ -40,7 +40,7 @@ func downloadChunk(ctx context.Context, global *GlobalDownloadController, task *
 	resp, err := hClient.Do(req)
 	if err != nil {
 		global.TotalThreads.Dec()
-		err = fmt.Errorf("hClient.Do: %w", err)
+		err = fmt.Errorf("[%s---%d] hClient.Do: %w", task.FileName.String(), chunk.ChunkID.Load(), err)
 		return err
 	}
 
@@ -64,7 +64,7 @@ func downloadChunk(ctx context.Context, global *GlobalDownloadController, task *
 			break
 		}
 		if err != nil {
-			err = fmt.Errorf("io.CopyN: %w", err)
+			err = fmt.Errorf("[%s---%d] io.CopyN: %w", task.FileName.String(), chunk.ChunkID.Load(), err)
 			break
 		}
 	}
