@@ -21,6 +21,10 @@ func (global *GlobalDownloadController) Tick(humanReadable bool) string {
 	global.DeltaBytes.Store(0)
 	global.Tasks.Range(func(k string, v *DownloadTaskController) bool {
 		v.TaskStats.DeltaBytes.Store(0)
+		v.Chunks.Range(func(ck string, c *DownloadChunkController) bool {
+			c.DeltaBytes.Store(0)
+			return true
+		})
 		return true
 	})
 	global.LastTick.Store(time.Now())
