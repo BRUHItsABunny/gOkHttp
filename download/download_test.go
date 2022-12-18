@@ -33,6 +33,7 @@ func Test_Download(t *testing.T) {
 
 	fileURL := "http://ipv4.download.thinkbroadband.com/200MB.zip"
 	global := NewGlobalDownloadController(time.Second * time.Duration(3))
+	global.PollIP(hClient)
 	task, err := NewDownloadTaskController(hClient, global, "200MB.zip", "200MB.zip", fileURL, 3, 0, reqOpts...)
 	if err != nil {
 		t.Error(err)

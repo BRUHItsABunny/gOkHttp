@@ -95,6 +95,7 @@ func (global *GlobalDownloadController) PollIP(hClient *http.Client) {
 
 func (global *GlobalDownloadController) pollIP(hClient *http.Client) {
 	global.Add(1)
+	global.CurrentIP.Store(GetCurrentIPAddress(hClient))
 	i := 0
 	for {
 		if i >= 59 {
