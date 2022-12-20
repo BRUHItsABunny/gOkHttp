@@ -146,7 +146,7 @@ func NewDownloadTaskController(hClient *http.Client, global *GlobalDownloadContr
 		chunkFileName := fileLocation + ".part" + chunkKey
 		if threads > 1 {
 			// size detection
-			chunk.F, err = os.OpenFile(chunkFileName, os.O_CREATE|os.O_APPEND, 0600)
+			chunk.F, err = os.OpenFile(chunkFileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0600)
 			if err != nil {
 				return nil, fmt.Errorf("os.OpenFile: %w", err)
 			}
