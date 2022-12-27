@@ -41,4 +41,3 @@ Feel free to fork this repository and open up pull requests.
 
 ## Todo
 
-* Built in HLS downloader (with its own muxer)
