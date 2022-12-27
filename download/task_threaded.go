@@ -192,7 +192,7 @@ func (tt *ThreadedDownloadTask) isResumable(ctx context.Context) error {
 	tt.Resumable.Store(ok)
 	if ok {
 		predictedLength := tt.TaskStats.FileSize.Load()
-		fmt.Println(fmt.Sprintf("isResumable: length: %d and predictedLength: %d", length, predictedLength))
+		// fmt.Println(fmt.Sprintf("isResumable: length: %d and predictedLength: %d", length, predictedLength))
 		if length != 0 && length != predictedLength {
 			tt.TaskStats.FileSize.Store(length)
 		}
