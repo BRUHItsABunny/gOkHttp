@@ -31,6 +31,10 @@ go get -u github.com/BRUHItsABunny/gOkHttp
 
 There is a file filled with examples [here](https://github.com/BRUHItsABunny/gOkHttp/blob/master/lib_test.go), and you can find the Go docs [here](https://pkg.go.dev/github.com/BRUHItsABunny/gOkHttp)
 
+
+### NOTE for HLS streams
+If the .ts file is broken, run it through FFmpeg in order to fix it real quick: `ffmpeg -i file.ts -c copy file_fixed.ts`
+
 ## Contributions
 
 Feel free to fork this repository and open up pull requests.
