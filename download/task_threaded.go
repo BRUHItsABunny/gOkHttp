@@ -226,8 +226,11 @@ func NewThreadedDownloadTask(ctx context.Context, hClient *http.Client, global *
 		ChunkCount: atomic.NewUint64(1),
 	}
 
-	// Is the file already downloaded and complete
-	var err error
+	// Is the dir accessible and is the file already downloaded and complete
+	err := os.MkdirAll(filepath.Dir(result.FileLocation.Load()), 0600)
+	if err != nil {
+		return nil, fmt.Errorf("os.MkdirAll: %w", err)
+	}
 	result.TaskStats.F, err = os.OpenFile(fileLocation, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("os.OpenFile: %w", err)
