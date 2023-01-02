@@ -74,6 +74,7 @@ func (tt *ThreadedDownloadTask) Download(ctx context.Context) error {
 	// Block until done
 	err := errGr.Wait()
 	if err != nil {
+		tt.Global.Done()
 		return fmt.Errorf("errGr.Wait: %w", err)
 	}
 	tt.Global.Done()
@@ -296,6 +297,7 @@ func NewThreadedDownloadTask(ctx context.Context, hClient *http.Client, global *
 		result.Chunks.Set(chunkKey, chunk)
 	}
 
+	global.TotalFiles.Inc()
 	global.TotalBytes.Add(result.TaskStats.FileSize.Load())
 	global.DownloadedBytes.Add(result.TaskStats.DownloadedBytes.Load())
 	global.Tasks.Set(fileLocation, result)
@@ -305,21 +307,23 @@ func NewThreadedDownloadTask(ctx context.Context, hClient *http.Client, global *
 func (tt *ThreadedDownloadTask) downloadChunk(ctx context.Context, chunk *ThreadedChunk) error {
 	tt.Global.TotalThreads.Inc()
 	if chunk.DownloadedBytes.Load() >= chunk.FileSize.Load() {
+		tt.Global.TotalThreads.Dec()
 		return nil
 	}
 	req, err := requests.MakeGETRequest(ctx, tt.FileURL.Load(), tt.ReqOpts...)
 	if err != nil {
 		tt.Global.TotalThreads.Dec()
-		return fmt.Errorf("[%s---%d] requests.MakeGETRequest: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)
+		return fmt.Errorf("[%s:%d] requests.MakeGETRequest: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)
 	}
+	req.Close = true
 
-	if tt.ChunkCount.Load() > 1 {
+	if tt.Resumable.Load() && (chunk.ChunkStart > 0 || chunk.ChunkStop < tt.TaskStats.FileSize.Load()) {
 		req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", chunk.ChunkStart, chunk.ChunkStop))
 	}
 	resp, err := tt.HClient.Do(req)
 	if err != nil {
 		tt.Global.TotalThreads.Dec()
-		err = fmt.Errorf("[%s---%d] tt.HClient.Do: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)
+		err = fmt.Errorf("[%s:%d] tt.HClient.Do: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)
 		return err
 	}
 
@@ -343,7 +347,7 @@ func (tt *ThreadedDownloadTask) downloadChunk(ctx context.Context, chunk *Thread
 			break
 		}
 		if err != nil {
-			err = fmt.Errorf("[%s---%d] io.CopyN: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)
+			err = fmt.Errorf("[%s:%d] io.CopyN: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)
 			break
 		}
 	}

@@ -81,6 +81,7 @@ func (st *StreamHLSTask) Download(ctx context.Context) error {
 	st.Global.TotalThreads.Inc()
 	err := errGr.Wait()
 	if err != nil {
+		st.Global.Done()
 		return fmt.Errorf("errGr.Wait: %w", err)
 	}
 	st.Global.Done()
