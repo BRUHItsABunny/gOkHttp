@@ -6,7 +6,7 @@ import (
 )
 
 func NewPOSTFormOption(values url.Values) *POSTRawOption {
-	return NewPOSTRawOption(strings.NewReader(values.Encode()), "application/x-www-form-urlencoded")
+	return NewPOSTRawOption(strings.NewReader(values.Encode()), "application/x-www-form-urlencoded", int64(len(values.Encode())))
 }
 
 func NewPOSTFormOptionFromMap(values map[string]string) *POSTRawOption {
