@@ -287,7 +287,7 @@ func ExampleMakePOSTRequestJSON() {
 	// POST request
 	req, err := requests.MakePOSTRequest(context.Background(), httpBin+"post",
 		requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
-		requests.NewPOSTRawOption(bytes.NewBufferString("{\"param1\":\"bunny1\"}"), "application/json"),
+		requests.NewPOSTJSONOption([]byte("{\"param1\":\"bunny1\"}"), false),
 	)
 	if err != nil {
 		panic(err)
@@ -313,17 +313,17 @@ func ExampleMakePOSTRequestJSON() {
 	//  "form": {},
 	//  "headers": {
 	//    "Accept-Encoding": "gzip",
+	//    "Content-Length": "19",
 	//    "Content-Type": "application/json",
 	//    "Header1": "bunnyHeader",
 	//    "Host": "httpbin.org",
-	//    "Transfer-Encoding": "chunked",
 	//    "User-Agent": "Go-http-client/2.0",
-	//    "X-Amzn-Trace-Id": "Root=1-639d0241-2d82f2ec3ff9447b7f44e79f"
+	//    "X-Amzn-Trace-Id": "Root=1-63f05e5d-331b28df45cd4a4a56213e94"
 	//  },
 	//  "json": {
 	//    "param1": "bunny1"
 	//  },
-	//  "origin": "",
+	//  "origin": "71.81.139.124",
 	//  "url": "https://httpbin.org/post"
 	//}
 }
