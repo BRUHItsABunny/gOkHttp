@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	crypto_utils "github.com/BRUHItsABunny/crypto-utils"
+	gokhttp_constants "github.com/BRUHItsABunny/gOkHttp/constants"
 	"github.com/cornelk/hashmap"
 	"net"
 	"net/http"
@@ -41,7 +42,7 @@ func (p *SSLPinningOption) GetPinsForHost(hostname string) (*SSLPin, error) {
 	if pin, ok := p.SSLPins.Get(hostname); ok {
 		return pin, nil
 	}
-	return nil, constants.ErrHostNotFound
+	return nil, gokhttp_constants.ErrHostNotFound
 }
 
 func (p *SSLPinningOption) AddPin(hostname string, skipCA bool, pins ...string) error {
@@ -56,7 +57,7 @@ func (p *SSLPinningOption) AddPin(hostname string, skipCA bool, pins ...string) 
 			pinObj.Algorithm = step[0]
 		}
 		if step[0] != pinObj.Algorithm {
-			return constants.ErrUnmatchedAlgo
+			return gokhttp_constants.ErrUnmatchedAlgo
 		}
 		pinObj.Pins.Set(step[1], struct{}{})
 	}
@@ -68,7 +69,7 @@ func (p *SSLPinningOption) dialContext(ctx context.Context, network, addr string
 	hostname := strings.Split(addr, ":")[0]
 	pins, err := p.GetPinsForHost(hostname)
 	if err != nil {
-		if err != constants.ErrHostNotFound {
+		if err != gokhttp_constants.ErrHostNotFound {
 			panic(fmt.Errorf("pinner.GetPinsForHost: %w", err))
 		}
 		c, err := tls.Dial(network, addr, nil)
