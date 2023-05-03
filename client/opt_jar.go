@@ -1,4 +1,4 @@
-package client
+package gokhttp_client
 
 import (
 	"github.com/BRUHItsABunny/gOkHttp/cookies"
@@ -6,10 +6,10 @@ import (
 )
 
 type JarOption struct {
-	Jar *cookies.CookieJarWrapper
+	Jar *gokhttp_cookies.CookieJarWrapper
 }
 
-func NewJarOption(jar *cookies.CookieJarWrapper) *JarOption {
+func NewJarOption(jar *gokhttp_cookies.CookieJarWrapper) *JarOption {
 	return &JarOption{Jar: jar}
 }
 

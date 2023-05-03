@@ -1,4 +1,4 @@
-package download
+package gokhttp_download
 
 import (
 	"bytes"
@@ -28,9 +28,9 @@ type StreamStats struct {
 
 type StreamHLSTask struct {
 	// Tracking ref
-	Global  *GlobalDownloadTracker `json:"-"`
-	HClient *http.Client           `json:"-"`
-	ReqOpts []requests.Option      `json:"-"`
+	Global  *GlobalDownloadTracker    `json:"-"`
+	HClient *http.Client              `json:"-"`
+	ReqOpts []gokhttp_requests.Option `json:"-"`
 
 	Muxer     *StreamMuxer `json:"-"`
 	TaskStats *StreamStats `json:"taskStats"`
@@ -41,7 +41,7 @@ type StreamHLSTask struct {
 	FileLocation *atomic.String                  `json:"fileLocation"`
 	PlayListUrl  *atomic.String                  `json:"playListUrl"`
 	BaseUrl      *url.URL                        `json:"-"`
-	Opts         []requests.Option               `json:"-"`
+	Opts         []gokhttp_requests.Option       `json:"-"`
 	SegmentChan  chan *m3u8.SegmentItem          `json:"-"`
 	BufferChan   chan *bytes.Buffer              `json:"-"`
 	SegmentCache *hashmap.Map[string, time.Time] `json:"-"`
@@ -109,7 +109,7 @@ func (st *StreamHLSTask) ResetDelta() {
 	// nothing? since i don't record per-tick data?
 }
 
-func NewStreamHLSTask(global *GlobalDownloadTracker, hClient *http.Client, playlistUrl, fileLocation string, saveSegments bool, opts ...requests.Option) (*StreamHLSTask, error) {
+func NewStreamHLSTask(global *GlobalDownloadTracker, hClient *http.Client, playlistUrl, fileLocation string, saveSegments bool, opts ...gokhttp_requests.Option) (*StreamHLSTask, error) {
 	if !strings.HasSuffix(fileLocation, ".ts") {
 		fileLocation += ".ts"
 	}
@@ -198,7 +198,7 @@ func (st *StreamHLSTask) getSegments(ctx context.Context) error {
 
 	playlistUrl := st.PlayListUrl.Load()
 	for !(playList != nil && !playList.IsMaster()) {
-		req, err = requests.MakeGETRequest(ctx, playlistUrl, st.Opts...)
+		req, err = gokhttp_requests.MakeGETRequest(ctx, playlistUrl, st.Opts...)
 		if err != nil {
 			return fmt.Errorf("requests.MakeGETRequest: %w", err)
 		}
@@ -206,7 +206,7 @@ func (st *StreamHLSTask) getSegments(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("hClient.Do: %w", err)
 		}
-		respText, err = responses.ResponseText(resp)
+		respText, err = gokhttp_responses.ResponseText(resp)
 		if err != nil {
 			return fmt.Errorf("responses.ResponseBytes: %w", err)
 		}
@@ -236,7 +236,7 @@ func (st *StreamHLSTask) getSegments(ctx context.Context) error {
 	for {
 		select {
 		case <-ticker:
-			req, err = requests.MakeGETRequest(ctx, playlistUrl, st.Opts...)
+			req, err = gokhttp_requests.MakeGETRequest(ctx, playlistUrl, st.Opts...)
 			if err != nil {
 				return fmt.Errorf("[targetStream] requests.MakeGETRequest: %w", err)
 			}
@@ -244,7 +244,7 @@ func (st *StreamHLSTask) getSegments(ctx context.Context) error {
 			if err != nil {
 				return fmt.Errorf("[targetStream] hClient.Do: %w", err)
 			}
-			respText, err = responses.ResponseText(resp)
+			respText, err = gokhttp_responses.ResponseText(resp)
 			if err != nil {
 				return fmt.Errorf("[targetStream] responses.ResponseBytes: %w", err)
 			}
@@ -316,7 +316,7 @@ func (st *StreamHLSTask) downloadSegments(ctx context.Context) error {
 		case <-ticker:
 			break
 		case newChunk := <-st.SegmentChan:
-			req, err := requests.MakeGETRequest(ctx, buildURLFromBase(st.BaseUrl, newChunk.Segment), st.Opts...)
+			req, err := gokhttp_requests.MakeGETRequest(ctx, buildURLFromBase(st.BaseUrl, newChunk.Segment), st.Opts...)
 			if err != nil {
 				return fmt.Errorf("requests.MakeGETRequest: %w", err)
 			}
@@ -324,7 +324,7 @@ func (st *StreamHLSTask) downloadSegments(ctx context.Context) error {
 			if err != nil {
 				return fmt.Errorf("st.HClient.Do: %w", err)
 			}
-			respBytes, err := responses.ResponseBytes(resp)
+			respBytes, err := gokhttp_responses.ResponseBytes(resp)
 			if err != nil {
 				return fmt.Errorf("responses.ResponseBytes: %w", err)
 			}

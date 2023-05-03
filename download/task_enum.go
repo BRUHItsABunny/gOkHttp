@@ -4,7 +4,7 @@
 // Build Date: 2022-12-21T19:29:50Z
 // Built By: goreleaser
 
-package download
+package gokhttp_download
 
 import (
 	"errors"

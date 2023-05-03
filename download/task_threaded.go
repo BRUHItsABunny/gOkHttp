@@ -1,4 +1,4 @@
-package download
+package gokhttp_download
 
 import (
 	"context"
@@ -34,9 +34,9 @@ type ThreadedChunk struct {
 
 type ThreadedDownloadTask struct {
 	// Tracking ref
-	Global  *GlobalDownloadTracker `json:"-"`
-	HClient *http.Client           `json:"-"`
-	ReqOpts []requests.Option      `json:"-"`
+	Global  *GlobalDownloadTracker    `json:"-"`
+	HClient *http.Client              `json:"-"`
+	ReqOpts []gokhttp_requests.Option `json:"-"`
 	// Metadata
 	TaskType     DownloadType    `json:"taskType"`
 	TaskVersion  DownloadVersion `json:"taskVersion"`
@@ -171,13 +171,13 @@ func (tt *ThreadedDownloadTask) ResetDelta() {
 
 func (tt *ThreadedDownloadTask) isResumable(ctx context.Context) error {
 	fileURL := tt.FileURL.Load()
-	req, err := requests.MakeHEADRequest(ctx, fileURL, tt.ReqOpts...)
+	req, err := gokhttp_requests.MakeHEADRequest(ctx, fileURL, tt.ReqOpts...)
 	if err != nil {
 		return fmt.Errorf("requests.MakeHEADRequest: %w", err)
 	}
 	resp, err := tt.HClient.Do(req)
 	if err != nil {
-		req, err = requests.MakeGETRequest(ctx, fileURL, tt.ReqOpts...)
+		req, err = gokhttp_requests.MakeGETRequest(ctx, fileURL, tt.ReqOpts...)
 		if err != nil {
 			return fmt.Errorf("requests.MakeGETRequest: %w", err)
 		}
@@ -203,7 +203,7 @@ func (tt *ThreadedDownloadTask) isResumable(ctx context.Context) error {
 	return nil
 }
 
-func NewThreadedDownloadTask(ctx context.Context, hClient *http.Client, global *GlobalDownloadTracker, fileLocation, fileURL string, threads, expectedSize uint64, opts ...requests.Option) (*ThreadedDownloadTask, error) {
+func NewThreadedDownloadTask(ctx context.Context, hClient *http.Client, global *GlobalDownloadTracker, fileLocation, fileURL string, threads, expectedSize uint64, opts ...gokhttp_requests.Option) (*ThreadedDownloadTask, error) {
 	result := &ThreadedDownloadTask{
 		ReqOpts:      opts,
 		HClient:      hClient,
@@ -310,7 +310,7 @@ func (tt *ThreadedDownloadTask) downloadChunk(ctx context.Context, chunk *Thread
 		tt.Global.TotalThreads.Dec()
 		return nil
 	}
-	req, err := requests.MakeGETRequest(ctx, tt.FileURL.Load(), tt.ReqOpts...)
+	req, err := gokhttp_requests.MakeGETRequest(ctx, tt.FileURL.Load(), tt.ReqOpts...)
 	if err != nil {
 		tt.Global.TotalThreads.Dec()
 		return fmt.Errorf("[%s:%d] requests.MakeGETRequest: %w", tt.FileName.String(), chunk.ChunkID.Load(), err)

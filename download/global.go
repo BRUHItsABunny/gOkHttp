@@ -1,4 +1,4 @@
-package download
+package gokhttp_download
 
 import (
 	"context"
@@ -58,7 +58,7 @@ func NewGlobalDownloadTracker(idleTimeout time.Duration) *GlobalDownloadTracker 
 }
 
 func GetCurrentIPAddress(hClient *http.Client) (ip string) {
-	req, err := requests.MakeGETRequest(context.Background(), "https://httpbin.org/get")
+	req, err := gokhttp_requests.MakeGETRequest(context.Background(), "https://httpbin.org/get")
 	if err != nil {
 		return
 	}
@@ -67,7 +67,7 @@ func GetCurrentIPAddress(hClient *http.Client) (ip string) {
 		return
 	}
 	data := map[string]any{}
-	err = responses.ResponseJSON(resp, &data)
+	err = gokhttp_responses.ResponseJSON(resp, &data)
 
 	if err != nil {
 		return

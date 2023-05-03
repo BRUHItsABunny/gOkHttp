@@ -27,7 +27,7 @@ func ExampleNewHTTPClient() {
 
 // This function makes a basic `*http.Client` object that uses a proxy
 func ExampleNewHTTPClientWithProxy() {
-	hClient, err := NewHTTPClient(client.NewProxyOption("http://127.0.0.1:8888"))
+	hClient, err := NewHTTPClient(gokhttp_client.NewProxyOption("http://127.0.0.1:8888"))
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func ExampleNewHTTPClientWithProxy() {
 
 // This function makes a basic `*http.Client` object that ensures certificate pinning
 func ExampleNewHTTPClientWithPinning() {
-	pinner := client.NewSSLPinningOption()
+	pinner := gokhttp_client.NewSSLPinningOption()
 	err := pinner.AddPin("github.com", true, "sha256\\/3ftdeWqIAONye/CeEQuLGvtlw4MPnQmKgyPLugFbK8=")
 	if err != nil {
 		panic(err)
@@ -59,7 +59,7 @@ func ExampleMakeGETRequest() {
 	}
 
 	// GET request, no extra headers, no extra parameters
-	req, err := requests.MakeGETRequest(context.Background(), httpBin+"get")
+	req, err := gokhttp_requests.MakeGETRequest(context.Background(), httpBin+"get")
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +71,7 @@ func ExampleMakeGETRequest() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}
@@ -98,9 +98,9 @@ func ExampleMakeGETRequestAdvanced() {
 	}
 
 	// GET request
-	req, err := requests.MakeGETRequest(context.Background(), httpBin+"get",
-		requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
-		requests.NewURLParamOption(url.Values{"param1": {"bunnyParam"}}),
+	req, err := gokhttp_requests.MakeGETRequest(context.Background(), httpBin+"get",
+		gokhttp_requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
+		gokhttp_requests.NewURLParamOption(url.Values{"param1": {"bunnyParam"}}),
 	)
 	if err != nil {
 		panic(err)
@@ -113,7 +113,7 @@ func ExampleMakeGETRequestAdvanced() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}
@@ -142,12 +142,12 @@ func ExampleMakeGETRequestAdvancedSlice() {
 		panic(err)
 	}
 
-	opts := []requests.Option{
-		requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
-		requests.NewURLParamOption(url.Values{"param1": {"bunnyParam"}}),
+	opts := []gokhttp_requests.Option{
+		gokhttp_requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
+		gokhttp_requests.NewURLParamOption(url.Values{"param1": {"bunnyParam"}}),
 	}
 	// GET request
-	req, err := requests.MakeGETRequest(context.Background(), httpBin+"get", opts...)
+	req, err := gokhttp_requests.MakeGETRequest(context.Background(), httpBin+"get", opts...)
 	if err != nil {
 		panic(err)
 	}
@@ -159,7 +159,7 @@ func ExampleMakeGETRequestAdvancedSlice() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}
@@ -189,7 +189,7 @@ func ExampleMakePOSTRequest() {
 	}
 
 	// POST request, no extra headers, no extra parameters
-	req, err := requests.MakePOSTRequest(context.Background(), httpBin+"post")
+	req, err := gokhttp_requests.MakePOSTRequest(context.Background(), httpBin+"post")
 	if err != nil {
 		panic(err)
 	}
@@ -201,7 +201,7 @@ func ExampleMakePOSTRequest() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}
@@ -233,9 +233,9 @@ func ExampleMakePOSTRequestForm() {
 	}
 
 	// POST request
-	req, err := requests.MakePOSTRequest(context.Background(), httpBin+"post",
-		requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
-		requests.NewPOSTFormOption(url.Values{"param1": {"bunnyParam"}}),
+	req, err := gokhttp_requests.MakePOSTRequest(context.Background(), httpBin+"post",
+		gokhttp_requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
+		gokhttp_requests.NewPOSTFormOption(url.Values{"param1": {"bunnyParam"}}),
 	)
 	if err != nil {
 		panic(err)
@@ -248,7 +248,7 @@ func ExampleMakePOSTRequestForm() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}
@@ -285,9 +285,9 @@ func ExampleMakePOSTRequestJSON() {
 	}
 
 	// POST request
-	req, err := requests.MakePOSTRequest(context.Background(), httpBin+"post",
-		requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
-		requests.NewPOSTJSONOption([]byte("{\"param1\":\"bunny1\"}"), false),
+	req, err := gokhttp_requests.MakePOSTRequest(context.Background(), httpBin+"post",
+		gokhttp_requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
+		gokhttp_requests.NewPOSTJSONOption([]byte("{\"param1\":\"bunny1\"}"), false),
 	)
 	if err != nil {
 		panic(err)
@@ -300,7 +300,7 @@ func ExampleMakePOSTRequestJSON() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}
@@ -336,7 +336,7 @@ func ExampleMakePOSTRequestMultipart() {
 	}
 
 	// Set up the multipart form
-	multiWrapper := multipart.NewMultiPartWrapper()
+	multiWrapper := gokhttp_multipart.NewMultiPartWrapper()
 	if err != nil {
 		panic(err)
 	}
@@ -356,9 +356,9 @@ func ExampleMakePOSTRequestMultipart() {
 	}
 
 	// POST request
-	req, err := requests.MakePOSTRequest(context.Background(), httpBin+"post",
-		requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
-		requests.NewPOSTMultipartOption(multiWrapper),
+	req, err := gokhttp_requests.MakePOSTRequest(context.Background(), httpBin+"post",
+		gokhttp_requests.NewHeaderOption(http.Header{"header1": {"bunnyHeader"}}),
+		gokhttp_requests.NewPOSTMultipartOption(multiWrapper),
 	)
 	if err != nil {
 		panic(err)
@@ -371,7 +371,7 @@ func ExampleMakePOSTRequestMultipart() {
 	}
 
 	// Get the response data, this also automatically closes the body
-	respBytes, err := responses.ResponseBytes(resp)
+	respBytes, err := gokhttp_responses.ResponseBytes(resp)
 	if err != nil {
 		panic(err)
 	}

@@ -1,4 +1,4 @@
-package client
+package gokhttp_client
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func TestNewSSLPinningOption(t *testing.T) {
 	hClient, err := NewHTTPClient(pinner)
 	require.NoError(t, err, "NewHTTPClient: errored unexpectedly.")
 
-	req, err := requests.MakeGETRequest(context.Background(), "https://github.com")
+	req, err := gokhttp_requests.MakeGETRequest(context.Background(), "https://github.com")
 	require.NoError(t, err, "requests.MakeGETRequest: errored unexpectedly.")
 
 	_, err = hClient.Do(req)
@@ -26,7 +26,7 @@ func TestNewSSLPinningOption(t *testing.T) {
 }
 
 func TestNewJarOption(t *testing.T) {
-	jar, err := cookies.NewCookieJar(".cookies", "test", nil)
+	jar, err := gokhttp_cookies.NewCookieJar(".cookies", "test", nil)
 	require.NoError(t, err, "cookies.NewCookieJar: errored unexpectedly.")
 
 	err = jar.Load()
@@ -36,7 +36,7 @@ func TestNewJarOption(t *testing.T) {
 	require.NoError(t, err, "NewHTTPClient: errored unexpectedly.")
 
 	for i := 0; i <= 1; i++ {
-		req, err := requests.MakeGETRequest(context.Background(), "https://google.com")
+		req, err := gokhttp_requests.MakeGETRequest(context.Background(), "https://google.com")
 		require.NoError(t, err, "requests.MakeGETRequest: errored unexpectedly.")
 
 		_, err = hClient.Do(req)

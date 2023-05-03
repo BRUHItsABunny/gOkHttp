@@ -1,4 +1,4 @@
-package responses
+package gokhttp_responses
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package client
+package gokhttp_client
 
 import (
 	"fmt"

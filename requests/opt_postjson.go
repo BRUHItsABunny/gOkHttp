@@ -1,4 +1,4 @@
-package requests
+package gokhttp_requests
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 )
 
 func NewPOSTJSONOption(data []byte, isUTF8 bool) *POSTRawOption {
-	mime := constants.MIMEApplicationJSON
+	mime := gokhttp_constants.MIMEApplicationJSON
 	if isUTF8 {
 		mime += "; charset=UTF-8"
 	}
@@ -15,7 +15,7 @@ func NewPOSTJSONOption(data []byte, isUTF8 bool) *POSTRawOption {
 }
 
 func NewPOSTJSONOptionFromReader(data io.Reader, length int, isUTF8 bool) *POSTRawOption {
-	mime := constants.MIMEApplicationJSON
+	mime := gokhttp_constants.MIMEApplicationJSON
 	if isUTF8 {
 		mime += "; charset=UTF-8"
 	}

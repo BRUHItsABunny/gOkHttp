@@ -1,4 +1,4 @@
-package download
+package gokhttp_download
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	crypto_utils "github.com/BRUHItsABunny/crypto-utils"
-	"github.com/BRUHItsABunny/gOkHttp/client"
+	gokhttp_client "github.com/BRUHItsABunny/gOkHttp/client"
 	"github.com/BRUHItsABunny/gOkHttp/requests"
 	"github.com/joho/godotenv"
 	"io"
@@ -43,11 +43,11 @@ func initTestEnv() {
 }
 
 func initHClient() (*http.Client, error) {
-	clientOpts := []client.Option{}
+	clientOpts := []gokhttp_client.Option{}
 	if os.Getenv("USE_PROXY") == "true" {
-		clientOpts = append(clientOpts, client.NewProxyOption(os.Getenv("OPT_PROXY")))
+		clientOpts = append(clientOpts, gokhttp_client.NewProxyOption(os.Getenv("OPT_PROXY")))
 	}
-	return client.NewHTTPClient(clientOpts...)
+	return gokhttp_client.NewHTTPClient(clientOpts...)
 }
 
 func TestThreadedDownloadTask_Download(t *testing.T) {
@@ -63,9 +63,9 @@ func TestThreadedDownloadTask_Download(t *testing.T) {
 	values := url.Values{
 		"param1": {"bunny"},
 	}
-	reqOpts := []requests.Option{
-		requests.NewHeaderOption(headers),
-		requests.NewURLParamOption(values),
+	reqOpts := []gokhttp_requests.Option{
+		gokhttp_requests.NewHeaderOption(headers),
+		gokhttp_requests.NewURLParamOption(values),
 	}
 
 	global := NewGlobalDownloadTracker(time.Second * time.Duration(3))

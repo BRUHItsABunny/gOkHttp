@@ -1,4 +1,4 @@
-package requests
+package gokhttp_requests
 
 import (
 	"github.com/BRUHItsABunny/gOkHttp/constants"
@@ -7,7 +7,7 @@ import (
 )
 
 func NewPOSTFormOption(values url.Values) *POSTRawOption {
-	return NewPOSTRawOption(strings.NewReader(values.Encode()), constants.MIMEApplicationPOSTFORM, int64(len(values.Encode())))
+	return NewPOSTRawOption(strings.NewReader(values.Encode()), gokhttp_constants.MIMEApplicationPOSTFORM, int64(len(values.Encode())))
 }
 
 func NewPOSTFormOptionFromMap(values map[string]string) *POSTRawOption {

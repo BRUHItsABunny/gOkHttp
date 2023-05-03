@@ -1,4 +1,4 @@
-package multipart
+package gokhttp_multipart
 
 import (
 	"bytes"

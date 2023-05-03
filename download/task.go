@@ -1,4 +1,4 @@
-package download
+package gokhttp_download
 
 import (
 	"context"

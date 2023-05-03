@@ -1,4 +1,4 @@
-package client
+package gokhttp_client
 
 import (
 	"golang.org/x/net/http2"

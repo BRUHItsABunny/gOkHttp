@@ -1,4 +1,4 @@
-package cookies
+package gokhttp_cookies
 
 import (
 	"fmt"
@@ -81,7 +81,7 @@ func (j *CookieJarWrapper) Save() error {
 
 func (j *CookieJarWrapper) save() error {
 	if j.f == nil {
-		return constants.ErrCookieJarNotPersistent
+		return gokhttp_constants.ErrCookieJarNotPersistent
 	}
 
 	entries := map[string][]*http.Cookie{}
@@ -125,7 +125,7 @@ func (j *CookieJarWrapper) Load() error {
 
 func (j *CookieJarWrapper) load() error {
 	if j.f == nil {
-		return constants.ErrCookieJarNotPersistent
+		return gokhttp_constants.ErrCookieJarNotPersistent
 	}
 
 	// Read from file

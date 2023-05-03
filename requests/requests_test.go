@@ -1,4 +1,4 @@
-package requests
+package gokhttp_requests
 
 import (
 	"bytes"
@@ -88,7 +88,7 @@ func TestRequests(t *testing.T) {
 	t.Run("MakePOST_Multipart", func(t *testing.T) {
 		expected := []byte("POST / HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Type: multipart/form-data; boundary=561b690102f1b14e82f9acb028b32bbce087aeda3d343c1236d25db02377\r\n\r\n--561b690102f1b14e82f9acb028b32bbce087aeda3d343c1236d25db02377\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: application/octet-stream\r\n\r\ncontent1\r\n--561b690102f1b14e82f9acb028b32bbce087aeda3d343c1236d25db02377--\r\n")
 
-		multiWrapper := multipart.NewMultiPartWrapper()
+		multiWrapper := gokhttp_multipart.NewMultiPartWrapper()
 		// Set boundary is required since it gets randomized when empty
 		err := multiWrapper.SetBoundary("561b690102f1b14e82f9acb028b32bbce087aeda3d343c1236d25db02377")
 		require.NoError(t, err, "multiWrapper.SetBoundary: errored unexpectedly.")
@@ -109,7 +109,7 @@ func TestRequests(t *testing.T) {
 	t.Run("MakePOST_Raw", func(t *testing.T) {
 		expected := []byte("POST / HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Type: application/json\r\n\r\n{\"param1\":\"bunny1\"}")
 
-		req, err := MakePOSTRequest(context.Background(), testURL, NewPOSTRawOption(bytes.NewBufferString(fakeJSON), "application/json"))
+		req, err := MakePOSTRequest(context.Background(), testURL, NewPOSTRawOption(bytes.NewBufferString(fakeJSON), "application/json", int64(len(fakeJSON))))
 		require.NoError(t, err, "requests.MakePOSTRequest: errored unexpectedly.")
 		reqRaw, err := httputil.DumpRequest(req, true)
 		require.NoError(t, err, "httputil.DumpRequest: errored unexpectedly.")

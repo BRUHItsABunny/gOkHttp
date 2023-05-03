@@ -1,4 +1,4 @@
-package requests
+package gokhttp_requests
 
 import (
 	"io"

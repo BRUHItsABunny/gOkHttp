@@ -1,4 +1,4 @@
-package constants
+package gokhttp_constants
 
 import "errors"
 

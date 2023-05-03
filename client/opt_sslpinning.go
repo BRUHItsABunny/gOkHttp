@@ -1,4 +1,4 @@
-package client
+package gokhttp_client
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	crypto_utils "github.com/BRUHItsABunny/crypto-utils"
-	"github.com/BRUHItsABunny/gOkHttp/constants"
 	"github.com/cornelk/hashmap"
 	"net"
 	"net/http"
