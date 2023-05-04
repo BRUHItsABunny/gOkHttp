@@ -15,6 +15,21 @@ This library has been written with handling cookies (in-memory, on-disk, encrypt
     * Response processing (eg: `responses.ResponseText(httpResp)` to return response body as a string)
     * Making requests with headers and parameters as maps (there where in Python it's dicts)
 
+#### Features
+This library has the following features in its ecosystem:
+* Easy client construction
+* Easy request construction
+* Easy response parsing
+* HTML parsing (and soon other advanced formats) with [goquery](https://github.com/PuerkitoBio/goquery) found [here](https://github.com/BRUHItsABunny/gOkHttp-advanced-responses)
+* Cookie handling (in-memory, on-disk, encrypted on-disk) found [here](https://github.com/BRUHItsABunny/gOkHttp-cookiejar)
+* SSL Pinning found [here](https://github.com/BRUHItsABunny/gOkHttp-sslpinning)
+* HTTP3 client support (theoretical) found [here](https://github.com/BRUHItsABunny/gOkHttp-http3)
+* Easy to use downloader implementations (multi-threaded, HLS stream downloader) found [here](https://github.com/BRUHItsABunny/gOkHttp-download)
+
+#### Why are some features split into another repository?
+In order to keep the main library lightweight I needed these dependencies to be optional, if you need them you can import them as-needed.
+This will result in smaller binary sizes and fewer dependencies to scan for licensing issues.
+
 ##### Warning
 
 This library is a lot more stable than it was back when I first wrote it, though it's far from perfect so do not use it for mission critical stuff
