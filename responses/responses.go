@@ -1,11 +1,9 @@
 package gokhttp_responses
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"io"
 	"net/http"
 )
@@ -63,17 +61,4 @@ func ResponseCustomMarshal(resp *http.Response, marshal func([]byte, any) error,
 		return fmt.Errorf("marshal: %w", err)
 	}
 	return nil
-}
-
-func ResponseHTML(resp *http.Response) (*goquery.Document, error) {
-	respBytes, err := ResponseBytes(resp)
-	if err != nil {
-		return nil, fmt.Errorf("responses.ResponseBytes: %w", err)
-	}
-
-	doc, err := goquery.NewDocumentFromReader(bytes.NewBuffer(respBytes))
-	if err != nil {
-		return nil, fmt.Errorf("goquery.NewDocumentFromReader: %w", err)
-	}
-	return doc, err
 }

@@ -35,22 +35,6 @@ func ExampleNewHTTPClientWithProxy() {
 	fmt.Println(hClient)
 }
 
-// This function makes a basic `*http.Client` object that ensures certificate pinning
-func ExampleNewHTTPClientWithPinning() {
-	pinner := gokhttp_client.NewSSLPinningOption()
-	err := pinner.AddPin("github.com", true, "sha256\\/3ftdeWqIAONye/CeEQuLGvtlw4MPnQmKgyPLugFbK8=")
-	if err != nil {
-		panic(err)
-	}
-
-	hClient, err := NewHTTPClient(pinner)
-	if err != nil {
-		panic(err)
-	}
-	// Just to prevent unused error in IDE
-	fmt.Println(hClient)
-}
-
 // This function executes a basic GET request without any special features
 func ExampleMakeGETRequest() {
 	hClient, err := NewHTTPClient()
