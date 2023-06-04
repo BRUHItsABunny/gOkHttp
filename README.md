@@ -25,6 +25,7 @@ This library has the following features in its ecosystem:
 * SSL Pinning found [here](https://github.com/BRUHItsABunny/gOkHttp-sslpinning)
 * HTTP3 client support (theoretical) found [here](https://github.com/BRUHItsABunny/gOkHttp-http3)
 * Easy to use downloader implementations (multi-threaded, HLS stream downloader) found [here](https://github.com/BRUHItsABunny/gOkHttp-download)
+* JA3 fingerprint spoofing found [here](https://github.com/BRUHItsABunny/gOkHttp-ja3spoof)
 
 #### Why are some features split into another repository?
 In order to keep the main library lightweight I needed these dependencies to be optional, if you need them you can import them as-needed.
