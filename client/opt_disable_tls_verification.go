@@ -7,10 +7,10 @@ import (
 	"golang.org/x/net/http2"
 )
 
-type DisableTLS struct {
+type DisableTLSVerification struct {
 }
 
-func (o *DisableTLS) Execute(client *http.Client) error {
+func (o *DisableTLSVerification) Execute(client *http.Client) error {
 	_, ok := client.Transport.(*http.Transport)
 	if ok {
 		client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
