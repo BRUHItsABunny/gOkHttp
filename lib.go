@@ -32,6 +32,13 @@ func TestHTTPClient(options ...gokhttp_client.Option) (*http.Client, error) {
 		}
 		opts = append(opts, opt)
 	}
+	if os.Getenv("USE_WIRESHARK") == "true" {
+		opt, err := gokhttp_client.NewTLSKeyLoggingOptionToFile(os.Getenv("WIRESHARK_LOGFILE"))
+		if err != nil {
+			return nil, fmt.Errorf("gokhttp_client.NewTLSKeyLoggingOptionToFile: %w", err)
+		}
+		opts = append(opts, opt)
+	}
 
 	opts = append(opts, options...)
 
