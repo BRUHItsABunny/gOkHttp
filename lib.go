@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/BRUHItsABunny/gOkHttp/client"
+	gokhttp_client "github.com/BRUHItsABunny/gOkHttp/client"
 	"net/http"
 	"os"
 )

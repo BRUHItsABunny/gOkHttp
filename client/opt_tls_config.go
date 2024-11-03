@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"time"
 
 	"golang.org/x/net/http2"
@@ -46,7 +47,7 @@ type RawTLSConfigOption struct {
 	Config *tls.Config
 }
 
-func (opt *RawTLSConfigOption) Execute(client *http.Client) error {
+func (opt *RawTLSConfigOption) ExecuteV1(client *http.Client) error {
 	typedH1Trans, ok := client.Transport.(*http.Transport)
 	if ok {
 		typedH1Trans.TLSClientConfig = opt.Config
@@ -58,9 +59,73 @@ func (opt *RawTLSConfigOption) Execute(client *http.Client) error {
 	return nil
 }
 
+func (opt *RawTLSConfigOption) Execute(client *http.Client) error {
+	return opt.processTransport(client, 1)
+}
+
 func (opt *RawTLSConfigOption) ExecuteTLSConfig(config *tls.Config) error {
 	config = opt.Config
 	return nil
+}
+
+func (opt *RawTLSConfigOption) processTransport(clientOrTransport any, depth int) error {
+	var (
+		ok                  bool
+		clientOrTransportRV reflect.Value
+	)
+	clientOrTransportRV, ok = clientOrTransport.(reflect.Value)
+	if !ok {
+		clientOrTransportRV = reflect.ValueOf(clientOrTransport)
+	}
+
+	if clientOrTransportRV.Kind() != reflect.Ptr || clientOrTransportRV.IsNil() {
+		return fmt.Errorf("expected non-nil pointer to struct")
+	}
+
+	// fmt.Println(fmt.Sprintf("Depth %d clientOrTransport.Type: %s", depth, clientOrTransport.Type().String()))
+	clientOrTransportElem := clientOrTransportRV.Elem()
+	// fmt.Println(fmt.Sprintf("Depth %d rvElem.Type: %s", depth, clientOrTransportElem.Type().String()))
+
+	// http.Client, oohttp.Client, http.Transport, oohttp.StdlibTransport, oohttp.Transport are all structs.
+	if clientOrTransportElem.Kind() != reflect.Struct {
+		return fmt.Errorf("expected pointer to struct")
+	}
+
+	// Check for ".Transport" field
+	transportField := clientOrTransportElem.FieldByName("Transport")
+	// Should always be an interface
+	if transportField.Kind() == reflect.Interface {
+		transportField = transportField.Elem()
+	}
+
+	// If it exists, we should recurse into it
+	if transportField.IsValid() {
+		// fmt.Println(fmt.Sprintf("Depth %d configField.Type: %s", depth, transportField.Type().String()))
+		if transportField.Kind() == reflect.Ptr {
+			if transportField.IsNil() {
+				return fmt.Errorf("transport field is nil")
+			}
+			return opt.processTransport(transportField, depth+1)
+		} else if transportField.Kind() == reflect.Struct {
+			return opt.processTransport(transportField.Addr(), depth+1)
+		} else {
+			return fmt.Errorf("transport field is not a struct or pointer to struct")
+		}
+	} else {
+		// Set ".TLSClientConfig" field
+		tlsConfigField := clientOrTransportElem.FieldByName("TLSClientConfig")
+		if tlsConfigField.IsValid() {
+			if !tlsConfigField.CanSet() {
+				return fmt.Errorf("cannot set TLSClientConfig field")
+			}
+
+			tlsConfigField.Set(reflect.ValueOf(opt.Config))
+
+			return nil
+		} else {
+			return fmt.Errorf("TLSClientConfig field not found")
+		}
+	}
 }
 
 func NewRawTLSConfigOption(config *tls.Config) *RawTLSConfigOption {
