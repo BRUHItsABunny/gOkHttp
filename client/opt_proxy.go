@@ -93,9 +93,6 @@ func (o *ProxyOption) processTransport(clientOrTransport any, depth int) error {
 			proxyFieldType := proxyField.Type()
 			newFuncValue := reflect.MakeFunc(proxyFieldType, func(args []reflect.Value) (results []reflect.Value) {
 				// fmt.Println("Dynamic Proxy called with arguments:")
-				for i, arg := range args {
-					fmt.Printf("  Arg %d: %v\n", i, arg.Interface())
-				}
 				results = make([]reflect.Value, proxyFieldType.NumOut())
 				results[0] = reflect.ValueOf(o.proxyObj)
 				results[1] = reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())
