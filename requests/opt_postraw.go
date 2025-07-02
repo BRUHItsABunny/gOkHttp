@@ -5,6 +5,13 @@ import (
 	"net/http"
 )
 
+var methodsWithoutBody = map[string]struct{}{
+	http.MethodGet:     {},
+	http.MethodHead:    {},
+	http.MethodOptions: {},
+	http.MethodTrace:   {},
+}
+
 type POSTRawOption struct {
 	Body          io.ReadCloser
 	ContentLength int64
@@ -20,10 +27,13 @@ func NewPOSTRawOption(data io.Reader, contentType string, contentLength int64) *
 }
 
 func (o *POSTRawOption) Execute(req *http.Request) error {
-	if req.Method == http.MethodPost {
-		req.Body = o.Body
-		req.Header.Set("Content-Type", o.ContentType)
-		req.ContentLength = o.ContentLength
+	_, ok := methodsWithoutBody[req.Method]
+	if ok {
+		return nil
 	}
+
+	req.Body = o.Body
+	req.Header.Set("Content-Type", o.ContentType)
+	req.ContentLength = o.ContentLength
 	return nil
 }
